@@ -12,6 +12,7 @@ import com.bimbiya.server.entity.SystemUser;
 import com.bimbiya.server.util.enums.Status;
 
 import java.util.Base64;
+import java.util.Date;
 import java.util.Objects;
 
 public class DtoToEntityMapper {
@@ -37,12 +38,11 @@ public class DtoToEntityMapper {
         ingredients.setStatusCode(Status.valueOf(ingredientsRequestDTO.getStatus()));
         ingredients.setIngredientsName(ingredientsRequestDTO.getIngredientsName());
         if (isAdd) {
-            ingredients.setCreatedUser(ingredientsRequestDTO.getActiveUserName());
-            ingredients.setLastUpdatedUser(ingredientsRequestDTO.getActiveUserName());
+            ingredients.setCreatedUser(ingredientsRequestDTO.getActiveUser());
+            ingredients.setCreatedTime(new Date());
 
-        }else {
-            ingredients.setLastUpdatedUser(ingredientsRequestDTO.getActiveUserName());
         }
+        ingredients.setLastUpdatedUser(ingredientsRequestDTO.getActiveUser());
     }
 
     public static void mapBytePackage(BytePackage bytePackage, BytePackageRequestDTO bytePackageRequestDTO, boolean isAdd) {

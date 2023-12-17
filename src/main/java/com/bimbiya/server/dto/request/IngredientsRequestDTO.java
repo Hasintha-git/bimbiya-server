@@ -16,7 +16,7 @@ import java.util.Date;
 @Data
 public class IngredientsRequestDTO {
     @NotNull(message = "Ingredients Id required", groups = {  DeleteValidation.class, UpdateValidation.class })
-    private Long id;
+    private Long ingredientsId;
 
     @NotBlank(message = "Ingredients name required", groups = {  InsertValidation.class, UpdateValidation.class })
     private String ingredientsName;
@@ -34,7 +34,7 @@ public class IngredientsRequestDTO {
 
     private String lastUpdatedUser;
 
-    private String activeUserName;
+    private String activeUser;
 
     private int pageNumber;
     private int pageSize;

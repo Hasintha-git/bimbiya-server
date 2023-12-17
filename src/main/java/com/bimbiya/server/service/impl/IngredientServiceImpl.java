@@ -86,7 +86,7 @@ public class IngredientServiceImpl implements IngredientService {
                     ingredientsRepository.count(ingredientSpecification.generateSearchCriteria(ingredientsRequestDTO.getIngredientSearchDTO()));
 
             List<IngredientsResponseDTO> collect = ingredientsList.stream()
-                    .map(ing -> modelMapper.map(ing, IngredientsResponseDTO.class))
+                    .map(EntityToDtoMapper::mapIngredient)
                     .collect(Collectors.toList());
 
 //            return responseGenerator
@@ -109,14 +109,14 @@ public class IngredientServiceImpl implements IngredientService {
     @Transactional
     public ResponseEntity<Object> findIngredientById(IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception {
         try {
-            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getId(), Status.deleted)).orElse(
+            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getIngredientsId(), Status.deleted)).orElse(
                     null
             );
 
             if (Objects.isNull(ingredients)) {
                 return responseGenerator.generateErrorResponse(ingredientsRequestDTO, HttpStatus.NOT_FOUND,
                         ResponseCode.NOT_FOUND, MessageConstant.INGREDIENT_NOT_FOUND, new
-                                Object[]{ingredientsRequestDTO.getId()},locale);
+                                Object[]{ingredientsRequestDTO.getIngredientsId()},locale);
             }
 
             IngredientsResponseDTO ingredientsResponseDTO = EntityToDtoMapper.mapIngredient(ingredients);
@@ -169,7 +169,7 @@ public class IngredientServiceImpl implements IngredientService {
     @Transactional
     public ResponseEntity<Object> editIngredient(IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception {
         try{
-            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getId(), Status.deleted))
+            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getIngredientsId(), Status.deleted))
                     .orElse(null);
 
             if (Objects.isNull(ingredients)) {
@@ -182,6 +182,7 @@ public class IngredientServiceImpl implements IngredientService {
             DtoToEntityMapper.mapIngredient(ingredients,ingredientsRequestDTO, false);
             ingredients.setLastUpdatedTime(new Date());
 
+            log.info("before saving ingredients"+ingredients);
             ingredientsRepository.save(ingredients);
             return responseGenerator.generateSuccessResponse(ingredientsRequestDTO, HttpStatus.OK,
                     ResponseCode.SAVED_SUCCESS, MessageConstant.INGREDIENT_SUCCESSFULLY_UPDATE, locale, new Object[] {ingredientsRequestDTO.getIngredientsName()});
@@ -199,7 +200,7 @@ public class IngredientServiceImpl implements IngredientService {
     @Transactional
     public ResponseEntity<Object> deleteIngredient(IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception {
         try{
-            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getId(), Status.deleted))
+            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getIngredientsId(), Status.deleted))
                     .orElse(null);
 
             if (Objects.isNull(ingredients)) {
