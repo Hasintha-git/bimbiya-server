@@ -2,10 +2,7 @@ package com.bimbiya.server.mapper;
 
 
 import com.bimbiya.server.dto.SimpleBaseDTO;
-import com.bimbiya.server.dto.response.AddToCartResponseDTO;
-import com.bimbiya.server.dto.response.BytePackageResponseDTO;
-import com.bimbiya.server.dto.response.IngredientsResponseDTO;
-import com.bimbiya.server.dto.response.UserResponseDTO;
+import com.bimbiya.server.dto.response.*;
 import com.bimbiya.server.entity.*;
 import com.bimbiya.server.util.enums.ClientStatusEnum;
 
@@ -136,4 +133,32 @@ public class EntityToDtoMapper {
         addToCartResponseDTO.setStatus(String.valueOf(addToCart.getStatus()));
         return addToCartResponseDTO;
     }
+
+    public static OrderResponseDTO mapOrder(Order order) {
+        OrderResponseDTO orderResponseDTO = new OrderResponseDTO();
+        orderResponseDTO.setOrderId(order.getId());
+        orderResponseDTO.setUserId(order.getSystemUser().getId());
+        orderResponseDTO.setOrderDate(order.getOrderDate());
+        orderResponseDTO.setTotalAmount(order.getTotalAmount());
+        orderResponseDTO.setStatus(String.valueOf(order.getStatus()));
+
+        if (Objects.nonNull(order.getCreatedUser())) {
+            orderResponseDTO.setCreatedUser(order.getCreatedUser());
+        }
+
+        if (Objects.nonNull(order.getCreatedTime())) {
+            orderResponseDTO.setCreatedTime(order.getCreatedTime());
+        }
+
+        if (Objects.nonNull(order.getLastUpdatedUser())) {
+            orderResponseDTO.setLastUpdatedUser(order.getLastUpdatedUser());
+        }
+
+        if (Objects.nonNull(order.getLastUpdatedTime())) {
+            orderResponseDTO.setLastUpdatedTime(order.getLastUpdatedTime());
+        }
+
+        return orderResponseDTO;
+    }
+
 }

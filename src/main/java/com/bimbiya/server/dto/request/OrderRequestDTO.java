@@ -1,5 +1,6 @@
 package com.bimbiya.server.dto.request;
 
+import com.bimbiya.server.dto.filter.OrderFilterDTO;
 import com.bimbiya.server.validators.FindValidation;
 import com.bimbiya.server.validators.InsertValidation;
 import com.bimbiya.server.validators.UpdateValidation;
@@ -44,4 +45,11 @@ public class OrderRequestDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date lastUpdatedTime;
 
+
+    private int pageNumber;
+    private int pageSize;
+    private String sortColumn;
+    private String sortDirection;
+
+    private OrderFilterDTO orderFilterDTO;
 }

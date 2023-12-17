@@ -1,6 +1,7 @@
 package com.bimbiya.server.entity;
 
 import com.bimbiya.server.util.enums.Status;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ import java.util.List;
  * @author Hasintha_S
  * @date 11/19/2023.
  */
-
+@Data
 @Entity
 @Table(name = "orders")
 public class Order {
