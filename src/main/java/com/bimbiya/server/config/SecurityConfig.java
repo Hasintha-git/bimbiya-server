@@ -67,7 +67,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        System.out.println(">>>>>>");
         return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
     }
 

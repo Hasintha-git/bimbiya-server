@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
             //get status
             List<SimpleBaseDTO> defaultStatus = Stream.of(ClientStatusEnum.values()).map(statusEnum -> new SimpleBaseDTO(statusEnum.getCode(), statusEnum.getDescription())).collect(Collectors.toList());
             //get user role list
-            List<UserRole> data = userRoleRepository.findAllByStatusCodeNot(Status.deleted);
+            List<UserRole> data = userRoleRepository.findAllByStatusCode(Status.active);
             List<SimpleBaseDTO> simpleBaseDTOList = data.stream().map(userRole -> {
                 SimpleBaseDTO simpleBaseDTO = new SimpleBaseDTO();
                 return EntityToDtoMapper.mapUserRoleDropdown(simpleBaseDTO, userRole);

@@ -3,7 +3,6 @@ package com.bimbiya.server.service.impl;
 import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.SimpleBaseDTO;
 import com.bimbiya.server.dto.request.BytePackageRequestDTO;
-import com.bimbiya.server.dto.response.ByteIngredientsResponseDTO;
 import com.bimbiya.server.dto.response.BytePackageResponseDTO;
 import com.bimbiya.server.entity.BytePackage;
 import com.bimbiya.server.entity.BytePackageIngredients;
@@ -59,9 +58,17 @@ public class BytePackageServiceImpl implements BytePackageService {
             List<SimpleBaseDTO> defaultStatus = Stream.of(ClientStatusEnum.values()).map(statusEnum -> new SimpleBaseDTO(statusEnum.getCode(), statusEnum.getDescription())).collect(Collectors.toList());
             List<SimpleBaseDTO> portionStatus = Stream.of(ClientPotionEnum.values()).map(statusEnum -> new SimpleBaseDTO(statusEnum.getCode(), statusEnum.getDescription())).collect(Collectors.toList());
 
+            //get user role list
+            List<Ingredients> data = ingredientsRepository.findAllByStatusCode(Status.active);
+            List<SimpleBaseDTO> ingredientsList = data.stream().map(userRole -> {
+                SimpleBaseDTO simpleBaseDTO = new SimpleBaseDTO();
+                return EntityToDtoMapper.mapIngredientDropdown(simpleBaseDTO, userRole);
+            }).collect(Collectors.toList());
+
             //set data
             refData.put("statusList", defaultStatus);
             refData.put("portionList", portionStatus);
+            refData.put("ingredientsList", ingredientsList);
 
             return refData;
 
@@ -128,19 +135,17 @@ public class BytePackageServiceImpl implements BytePackageService {
 
             BytePackageResponseDTO bytePackageResponseDTO = EntityToDtoMapper.mapBytePackage(bytePackage);
 
+            setBannerImage(bytePackage, bytePackageResponseDTO);
+
             List<BytePackageIngredients> bytePackageIngredients = Optional.ofNullable(bytePackageIngredientsRepository.findAllByBytePackage(bytePackage)).orElse(null);
 
             if (Objects.nonNull(bytePackageIngredients)) {
-                List<ByteIngredientsResponseDTO> byteIngredientsResponseDTOList= new ArrayList<>();
+                List<Long> byteIngredientsResponseDTOList= new ArrayList<>();
                 for (BytePackageIngredients bytePackageIngredient : bytePackageIngredients) {
-                    ByteIngredientsResponseDTO byteIngredientsResponseDTO = new ByteIngredientsResponseDTO();
-                    byteIngredientsResponseDTO.setIngredientsId(bytePackageIngredient.getIngredients().getIngredientsId());
-                    byteIngredientsResponseDTO.setIngredientsName(bytePackageIngredient.getIngredients().getIngredientsName());
-                    byteIngredientsResponseDTO.setStatus(String.valueOf(bytePackageIngredient.getIngredients().getStatusCode()));
-                    byteIngredientsResponseDTOList.add(byteIngredientsResponseDTO);
+                    byteIngredientsResponseDTOList.add(bytePackageIngredient.getIngredients().getIngredientsId());
                 }
 
-                bytePackageResponseDTO.setByteIngredientsResponseDTOList(byteIngredientsResponseDTOList);
+                bytePackageResponseDTO.setIngredientList(byteIngredientsResponseDTOList);
 
             }
 
@@ -154,6 +159,14 @@ public class BytePackageServiceImpl implements BytePackageService {
             log.error(ex.getMessage());
             throw ex;
         }
+    }
+
+    public static BytePackageResponseDTO setBannerImage(BytePackage bytePackage,BytePackageResponseDTO bytePackageResponseDTO) {
+        if (Objects.nonNull(bytePackage.getImg())) {
+            String encode = "data:image/jpeg;base64," + new String(Base64.getEncoder().encode(bytePackage.getImg()));
+            bytePackageResponseDTO.setImg(encode);
+        }
+        return bytePackageResponseDTO;
     }
 
     @Override

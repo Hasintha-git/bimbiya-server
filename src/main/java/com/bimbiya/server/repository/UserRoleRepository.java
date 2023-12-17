@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
     Optional<UserRole> findByCode(String code);
     List<UserRole> findAllByStatusCodeNot(Status status);
+    List<UserRole> findAllByStatusCode(Status status);
 
     UserRole findByCodeAndStatusCode(String code, Status status);
 

@@ -1,6 +1,7 @@
 package com.bimbiya.server.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,8 +22,10 @@ public class BytePackageResponseDTO {
     private String statusDescription;
     private String createdUser;
     private String lastUpdatedUser;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date createdTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date lastUpdatedTime;
-
-    private List<ByteIngredientsResponseDTO> byteIngredientsResponseDTOList;
+    private String img;
+    private List<Long> ingredientList;
 }

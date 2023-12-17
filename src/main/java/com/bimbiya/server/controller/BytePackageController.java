@@ -4,7 +4,6 @@ import com.bimbiya.server.dto.filter.BytePackageSearchDTO;
 import com.bimbiya.server.dto.request.BytePackageRequestDTO;
 import com.bimbiya.server.service.BytePackageService;
 import com.bimbiya.server.util.EndPoint;
-import com.bimbiya.server.validators.DeleteValidation;
 import com.bimbiya.server.validators.FindValidation;
 import com.bimbiya.server.validators.InsertValidation;
 import com.bimbiya.server.validators.UpdateValidation;
@@ -96,11 +95,12 @@ public class BytePackageController {
         return bytePackageService.editBytePackage(bytePackageRequestDTO, locale);
     }
 
-    @DeleteMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_MGT}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/v1/admin-byte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     @ResponseBody
-    public ResponseEntity<Object> deleteBytePackage(@Validated({ DeleteValidation.class})
-                                                        @RequestBody BytePackageRequestDTO bytePackageRequestDTO, Locale locale) throws Exception {
+    public ResponseEntity<Object> deleteBytePackage(@PathVariable Long id, Locale locale) throws Exception {
+        BytePackageRequestDTO bytePackageRequestDTO = new BytePackageRequestDTO();
+        bytePackageRequestDTO.setPackageId(id);
         log.info("Received Byte Package delete List Request {} -", bytePackageRequestDTO);
         return bytePackageService.deleteBytePackage(bytePackageRequestDTO, locale);
     }

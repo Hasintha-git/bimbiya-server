@@ -64,6 +64,13 @@ public class EntityToDtoMapper {
         return simpleBaseDTO;
     }
 
+    public static SimpleBaseDTO mapIngredientDropdown(SimpleBaseDTO simpleBaseDTO, Ingredients ingredients) {
+        simpleBaseDTO.setId(ingredients.getIngredientsId());
+        simpleBaseDTO.setDescription(ingredients.getIngredientsName());
+        return simpleBaseDTO;
+    }
+
+
     public static IngredientsResponseDTO mapIngredient(Ingredients ingredients) {
         IngredientsResponseDTO ingredientsResponseDTO = new IngredientsResponseDTO();
         ingredientsResponseDTO.setIngredientsId(ingredients.getIngredientsId());
