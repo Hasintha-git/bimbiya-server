@@ -12,10 +12,14 @@ public interface UserService {
     Object getUserFilterList(UserRequestDTO userRequestDTO, Locale locale) throws Exception;
 
     ResponseEntity<Object> findUserById(UserRequestDTO userRequestDTO, Locale locale) throws Exception;
+    ResponseEntity<Object> forDashboard(Locale locale) throws Exception;
 
     ResponseEntity<Object> saveUser(UserRequestDTO userRequestDTO, Locale locale) throws Exception;
 
     ResponseEntity<Object> editUser(UserRequestDTO userRequestDTO, Locale locale);
+    ResponseEntity<Object> forgetPassword(UserRequestDTO userRequestDTO, Locale locale);
+    ResponseEntity<Object> lockUser(UserRequestDTO userRequestDTO, Locale locale);
+    ResponseEntity<Object> unlockUser(UserRequestDTO userRequestDTO, Locale locale);
 
     ResponseEntity<Object> deleteUser(UserRequestDTO userRequestDTO, Locale locale);
 }

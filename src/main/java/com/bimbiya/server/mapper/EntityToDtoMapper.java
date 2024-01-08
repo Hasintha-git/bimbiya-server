@@ -93,33 +93,36 @@ public class EntityToDtoMapper {
         return ingredientsResponseDTO;
     }
 
-    public static BytePackageResponseDTO mapBytePackage(BytePackage bytePackage) {
-        BytePackageResponseDTO bytePackageResponseDTO = new BytePackageResponseDTO();
-        bytePackageResponseDTO.setPackageId(bytePackage.getPackageId());
-        bytePackageResponseDTO.setMealName(bytePackage.getMealName());
-        bytePackageResponseDTO.setDescription(bytePackage.getDescription());
-        bytePackageResponseDTO.setPrice(bytePackage.getPrice());
-        bytePackageResponseDTO.setStatus(ClientStatusEnum.getEnum(String.valueOf(bytePackage.getStatus())).getCode());
-        bytePackageResponseDTO.setStatusDescription(ClientStatusEnum.getEnum(String.valueOf(bytePackage.getStatus())).getDescription());
-        bytePackageResponseDTO.setPortion(String.valueOf(bytePackage.getPotion()));
-
-        if (Objects.nonNull(bytePackage.getCreatedUser())) {
-            bytePackageResponseDTO.setCreatedUser(bytePackage.getCreatedUser());
+    public static ProductResponseDTO mapBytePackage(Product product) {
+        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+        productResponseDTO.setPackageId(product.getPackageId());
+        productResponseDTO.setMealName(product.getProductName());
+        productResponseDTO.setDescription(product.getDescription());
+        productResponseDTO.setPrice(product.getPrice());
+        productResponseDTO.setProductCategory(product.getProductCategory().getCode());
+        productResponseDTO.setStatus(ClientStatusEnum.getEnum(String.valueOf(product.getStatus())).getCode());
+        productResponseDTO.setStatusDescription(ClientStatusEnum.getEnum(String.valueOf(product.getStatus())).getDescription());
+        if (Objects.nonNull(product.getPotion())) {
+            productResponseDTO.setPortion(product.getPotion());
         }
 
-        if (Objects.nonNull(bytePackage.getCreatedTime())) {
-            bytePackageResponseDTO.setCreatedTime(bytePackage.getCreatedTime());
+        if (Objects.nonNull(product.getCreatedUser())) {
+            productResponseDTO.setCreatedUser(product.getCreatedUser());
         }
 
-        if (Objects.nonNull(bytePackage.getLastUpdatedUser())) {
-            bytePackageResponseDTO.setLastUpdatedUser(bytePackage.getLastUpdatedUser());
+        if (Objects.nonNull(product.getCreatedTime())) {
+            productResponseDTO.setCreatedTime(product.getCreatedTime());
         }
 
-        if (Objects.nonNull(bytePackage.getLastUpdatedTime())) {
-            bytePackageResponseDTO.setLastUpdatedTime(bytePackage.getLastUpdatedTime());
+        if (Objects.nonNull(product.getLastUpdatedUser())) {
+            productResponseDTO.setLastUpdatedUser(product.getLastUpdatedUser());
         }
 
-        return bytePackageResponseDTO;
+        if (Objects.nonNull(product.getLastUpdatedTime())) {
+            productResponseDTO.setLastUpdatedTime(product.getLastUpdatedTime());
+        }
+
+        return productResponseDTO;
     }
 
     public static AddToCartResponseDTO mapAddToCart( AddToCart addToCart) {
@@ -129,7 +132,7 @@ public class EntityToDtoMapper {
         addToCartResponseDTO.setPackageId(addToCart.getBpackage().getPackageId());
         addToCartResponseDTO.setUserId(addToCart.getSystemUser().getId());
         addToCartResponseDTO.setUserName(addToCart.getSystemUser().getUsername());
-        addToCartResponseDTO.setMealName(addToCart.getBpackage().getMealName());
+        addToCartResponseDTO.setMealName(addToCart.getBpackage().getProductName());
         addToCartResponseDTO.setStatus(String.valueOf(addToCart.getStatus()));
         return addToCartResponseDTO;
     }
@@ -161,4 +164,27 @@ public class EntityToDtoMapper {
         return orderResponseDTO;
     }
 
+
+    public static OrderDetailsResponseDTO mapOrderDetails(OrderDetail orderDetail) {
+        OrderDetailsResponseDTO responseDTO = new OrderDetailsResponseDTO();
+        responseDTO.setOrderDetailId(orderDetail.getDetail_id());
+        responseDTO.setProductId(orderDetail.getProduct().getPackageId());
+        responseDTO.setProductName(orderDetail.getProduct().getProductName());
+        responseDTO.setQuantity(orderDetail.getQuantity());
+        responseDTO.setUnitPrice(orderDetail.getUnitPrice());
+        responseDTO.setSubTotal(orderDetail.getSubTotal());
+
+        if (Objects.nonNull(orderDetail.getPotion())) {
+            responseDTO.setPotion(orderDetail.getPotion());
+        }
+
+        return responseDTO;
+    }
+
+
+    public static SimpleBaseDTO mapProductCategoryDropdown(SimpleBaseDTO simpleBaseDTO, ProductCategory productCategory) {
+        simpleBaseDTO.setCode(productCategory.getCode());
+        simpleBaseDTO.setDescription(productCategory.getDescription());
+        return simpleBaseDTO;
+    }
 }

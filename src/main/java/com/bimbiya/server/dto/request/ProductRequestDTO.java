@@ -16,7 +16,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Data
-public class BytePackageRequestDTO {
+public class ProductRequestDTO {
     @NotNull(message = "Package id required", groups = {  DeleteValidation.class, UpdateValidation.class })
     private Long packageId;
 
@@ -34,6 +34,9 @@ public class BytePackageRequestDTO {
 
     @NotBlank(message = "Status required", groups = {  InsertValidation.class, UpdateValidation.class })
     private String status;
+
+    @NotBlank(message = "Category required", groups = {  InsertValidation.class })
+    private String productCategory;
 
     @NotBlank(message = "Created user required")
     private String createdUser;

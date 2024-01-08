@@ -4,6 +4,7 @@ import com.bimbiya.server.dto.filter.OrderFilterDTO;
 import com.bimbiya.server.dto.request.OrderRequestDTO;
 import com.bimbiya.server.service.OrderService;
 import com.bimbiya.server.util.EndPoint;
+import com.bimbiya.server.validators.FindValidation;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -49,7 +51,7 @@ public class OrderController {
         OrderRequestDTO orderRequestDTO = new OrderRequestDTO();
         OrderFilterDTO orderFilterDTO= new OrderFilterDTO();
         orderFilterDTO.setUserId(userId);
-        orderFilterDTO.setStatus(status);
+            orderFilterDTO.setStatus(status);
         orderFilterDTO.setOrderDate(orderDate);
 
         orderRequestDTO.setOrderFilterDTO(orderFilterDTO);
@@ -65,4 +67,25 @@ public class OrderController {
                 .body(orderService.getOrderFilterList(orderRequestDTO, locale));
     }
 
+    @PostMapping(value = {EndPoint.ORDER_REQUEST_FIND}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> findOrder(@Validated({ FindValidation.class})
+                                                 @RequestBody OrderRequestDTO orderRequestDTO, Locale locale) throws Exception {
+        log.info("Received Order find List Request {} -", orderRequestDTO);
+        return orderService.findOrderById(orderRequestDTO, locale);
+    }
+
+    @PutMapping(value = {EndPoint.ORDER_REQUEST_UPDATE}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> orderStatusUpdate(@RequestBody OrderRequestDTO orderRequestDTO, Locale locale) throws Exception {
+        log.info("Received Order find List Request {} -", orderRequestDTO);
+        return orderService.orderProcessingUpdate(orderRequestDTO, locale);
+    }
+
+    @PostMapping(value = {EndPoint.PLACE_ORDER}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> placeOrder(@RequestBody OrderRequestDTO orderRequestDTO, Locale locale) throws Exception {
+        log.info("Received Order Place Request {} -", orderRequestDTO);
+        return orderService.newOrder(orderRequestDTO, locale);
+    }
 }

@@ -9,11 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
     List<Order> findAllBySystemUserAndStatus(SystemUser systemUser, Status status);
     List<Order> findAllByOrderDateAndStatus(Date date, Status status);
+    Optional<Order> findById(Long id);
     Long countAllByOrderDateAndStatus(Date date, Status status);
     Long countAllByOrderDateAndStatusNot(Date date, Status status);
     Long countAllByOrderDate(Date date);

@@ -23,4 +23,6 @@ public interface UserRepository extends JpaRepository<SystemUser, Long>, JpaSpec
     SystemUser findByMobileNoAndStatusNotAndIdNot(String mobile,Status status, Long id);
 
     SystemUser findByIdAndStatusNot(Long id, Status status);
+    SystemUser findByIdAndStatus(Long id, Status status);
+    Long countByStatus(Status status);
 }

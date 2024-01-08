@@ -3,12 +3,15 @@ package com.bimbiya.server.service.impl;
 import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.SimpleBaseDTO;
 import com.bimbiya.server.dto.request.UserRequestDTO;
+import com.bimbiya.server.dto.response.DashboardResponseDTO;
 import com.bimbiya.server.dto.response.UserResponseDTO;
 import com.bimbiya.server.entity.SystemUser;
 import com.bimbiya.server.entity.UserRole;
 import com.bimbiya.server.mapper.DtoToEntityMapper;
 import com.bimbiya.server.mapper.EntityToDtoMapper;
 import com.bimbiya.server.mapper.ResponseGenerator;
+import com.bimbiya.server.repository.OrderDetailRepository;
+import com.bimbiya.server.repository.OrderRepository;
 import com.bimbiya.server.repository.UserRepository;
 import com.bimbiya.server.repository.UserRoleRepository;
 import com.bimbiya.server.repository.specifications.UserSpecification;
@@ -40,6 +43,8 @@ import java.util.stream.Stream;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+    private OrderRepository orderRepository;
+    private OrderDetailRepository orderDetailRepository;
 
     private UserRoleRepository userRoleRepository;
 
@@ -104,7 +109,7 @@ public class UserServiceImpl implements UserService {
                     userRepository.count(userSpecification.generateSearchCriteria(userRequestDTO.getUserRequestSearchDTO()));
 
             List<UserResponseDTO> collect = faqList.stream()
-                    .map(faq -> modelMapper.map(faq, UserResponseDTO.class))
+                    .map(EntityToDtoMapper::mapUser)
                     .collect(Collectors.toList());
 
 //            return responseGenerator
@@ -143,6 +148,32 @@ public class UserServiceImpl implements UserService {
             return responseGenerator
                     .generateSuccessResponse(userRequestDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,
                             MessageConstant.SUCCESSFULLY_GET, locale, userResponseDTO);
+        } catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> forDashboard(Locale locale) throws Exception {
+        try {
+            DashboardResponseDTO dashboardResponseDTO = new DashboardResponseDTO();
+            dashboardResponseDTO.setDeleteUsers(userRepository.countByStatus(Status.deleted));
+            dashboardResponseDTO.setActiveUsers(userRepository.countByStatus(Status.active));
+            dashboardResponseDTO.setInactiveUsers(userRepository.countByStatus(Status.inactive));
+            dashboardResponseDTO.setRejectedOrders(orderRepository.countAllByStatus(Status.rejected));
+            dashboardResponseDTO.setPendingOrders(orderRepository.countAllByStatus(Status.pending));
+            dashboardResponseDTO.setCompletedOrders(orderRepository.countAllByStatus(Status.completed));
+            dashboardResponseDTO.setProcessingOrders(orderRepository.countAllByStatus(Status.processing));
+            dashboardResponseDTO.setShippedOrders(orderRepository.countAllByStatus(Status.shipped));
+            dashboardResponseDTO.setTodayOrders(orderRepository.countAllByOrderDate(new Date()));
+
+            return responseGenerator
+                    .generateSuccessResponse(dashboardResponseDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,
+                            MessageConstant.SUCCESSFULLY_GET, locale, dashboardResponseDTO);
         } catch (EntityNotFoundException ex) {
             log.info(ex.getMessage());
             throw ex;
@@ -320,6 +351,97 @@ public class UserServiceImpl implements UserService {
             userRepository.save(systemUser);
             return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
                     ResponseCode.UPDATE_SUCCESS, MessageConstant.USER_SUCCESSFULLY_UPDATE, locale, new Object[] {userRequestDTO.getUsername()});
+        }
+        catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> forgetPassword(UserRequestDTO userRequestDTO, Locale locale) {
+        try{
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByIdAndStatusNot(userRequestDTO.getId(), Status.deleted))
+                    .orElse(null);
+            if (Objects.isNull(systemUser)) {
+                return responseGenerator
+                        .generateErrorResponse(userRequestDTO, HttpStatus.CONFLICT,
+                                ResponseCode.NOT_FOUND ,  MessageConstant.USER_NOT_FOUND, new Object[] {userRequestDTO.getUsername()},
+                                locale);
+            }
+
+            Date systemDate = new Date();
+            systemUser.setLastUpdatedTime(systemDate);
+            String encode = passwordEncoder.encode(userRequestDTO.getPassword());
+            systemUser.setPassword(encode);
+
+            userRepository.save(systemUser);
+            return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
+                    ResponseCode.UPDATE_SUCCESS, MessageConstant.USER_PASSWORD_RESET, locale, new Object[] {userRequestDTO.getUsername()});
+        }
+        catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> lockUser(UserRequestDTO userRequestDTO, Locale locale) {
+        try{
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByIdAndStatusNot(userRequestDTO.getId(), Status.deleted))
+                    .orElse(null);
+            if (Objects.isNull(systemUser)) {
+                return responseGenerator
+                        .generateErrorResponse(userRequestDTO, HttpStatus.CONFLICT,
+                                ResponseCode.NOT_FOUND ,  MessageConstant.USER_NOT_FOUND, new Object[] {userRequestDTO.getUsername()},
+                                locale);
+            }
+
+            Date systemDate = new Date();
+            systemUser.setStatus(Status.locked);
+            systemUser.setLastUpdatedTime(systemDate);
+
+            userRepository.save(systemUser);
+            return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
+                    ResponseCode.UPDATE_SUCCESS, MessageConstant.USER_LOCKED, locale, new Object[] {userRequestDTO.getUsername()});
+        }
+        catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> unlockUser(UserRequestDTO userRequestDTO, Locale locale) {
+        try{
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByIdAndStatusNot(userRequestDTO.getId(), Status.deleted))
+                    .orElse(null);
+            if (Objects.isNull(systemUser)) {
+                return responseGenerator
+                        .generateErrorResponse(userRequestDTO, HttpStatus.CONFLICT,
+                                ResponseCode.NOT_FOUND ,  MessageConstant.USER_NOT_FOUND, new Object[] {userRequestDTO.getUsername()},
+                                locale);
+            }
+
+            Date systemDate = new Date();
+            systemUser.setStatus(Status.active);
+            systemUser.setLastUpdatedTime(systemDate);
+
+            userRepository.save(systemUser);
+            return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
+                    ResponseCode.UPDATE_SUCCESS, MessageConstant.USER_UNLOCKED, locale, new Object[] {userRequestDTO.getUsername()});
         }
         catch (EntityNotFoundException ex) {
             log.info(ex.getMessage());

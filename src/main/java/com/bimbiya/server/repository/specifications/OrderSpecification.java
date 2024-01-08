@@ -1,14 +1,15 @@
 package com.bimbiya.server.repository.specifications;
 
 import com.bimbiya.server.dto.filter.OrderFilterDTO;
-import com.bimbiya.server.entity.*;
+import com.bimbiya.server.entity.Order;
+import com.bimbiya.server.entity.Order_;
+import com.bimbiya.server.entity.SystemUser_;
 import com.bimbiya.server.util.enums.Status;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,7 +27,7 @@ public class OrderSpecification {
                 predicates.add(criteriaBuilder.equal(root.get(Order_.STATUS), Status.valueOf(orderFilterDTO.getStatus())));
 
             if (Objects.nonNull(orderFilterDTO.getOrderDate()) )
-                predicates.add(criteriaBuilder.equal(root.get(Order_.CREATED_TIME), new Date(String.valueOf(orderFilterDTO.getOrderDate()))));
+                predicates.add(criteriaBuilder.equal(root.get(Order_.CREATED_TIME), orderFilterDTO.getOrderDate()));
 
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

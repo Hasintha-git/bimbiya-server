@@ -11,11 +11,12 @@ import java.util.List;
 
 @NoArgsConstructor
 @Data
-public class BytePackageResponseDTO {
+public class ProductResponseDTO {
     private Long packageId;
     private String mealName;
     private String description;
     private BigDecimal price;
+    private String productCategory;
     private String portion;
     private String portionDescription;
     private String status;

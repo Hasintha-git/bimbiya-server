@@ -17,4 +17,14 @@ public class DataSourceConfig {
                 .password("")
                 .build();
     }
+
+//    @Bean
+//    public DataSource dataSource() {
+//        return DataSourceBuilder.create()
+//                .driverClassName("com.mysql.cj.jdbc.Driver")
+//                .url("jdbc:mysql://104.152.222.98:3306/bimbiya")
+//                .username("bimbiya")
+//                .password("Bimbiya@1234")
+//                .build();
+//    }
 }

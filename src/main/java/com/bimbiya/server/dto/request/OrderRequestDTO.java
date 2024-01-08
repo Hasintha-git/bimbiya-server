@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.Date;
 
 /**
@@ -28,13 +29,28 @@ public class OrderRequestDTO {
     @NotNull(message = "User Id required", groups = { UpdateValidation.class , InsertValidation.class })
     private Long userId;
 
+    @NotNull(message = "Product Id required", groups = { UpdateValidation.class , InsertValidation.class })
+    private Long productId;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date orderDate;
 
-    @NotNull(message = "Sub Total required", groups = {  InsertValidation.class })
+    @NotNull(message = "Sub Total required", groups = {  UpdateValidation.class })
     private BigDecimal totAmount;
 
-    @NotBlank(message = "Status required", groups = {  InsertValidation.class, UpdateValidation.class })
+    private BigDecimal unitPrice;
+
+    private Integer qty;
+
+    private BigDecimal subTotal;
+
+    private Integer personCount;
+
+    private LocalTime scheduledTime;
+
+    private String potion;
+
+    @NotBlank(message = "Status required", groups = { UpdateValidation.class })
     private String status;
 
     private String activeUser;

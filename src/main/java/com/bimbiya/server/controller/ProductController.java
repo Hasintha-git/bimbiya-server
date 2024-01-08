@@ -1,8 +1,8 @@
 package com.bimbiya.server.controller;
 
 import com.bimbiya.server.dto.filter.BytePackageSearchDTO;
-import com.bimbiya.server.dto.request.BytePackageRequestDTO;
-import com.bimbiya.server.service.BytePackageService;
+import com.bimbiya.server.dto.request.ProductRequestDTO;
+import com.bimbiya.server.service.ProductService;
 import com.bimbiya.server.util.EndPoint;
 import com.bimbiya.server.validators.FindValidation;
 import com.bimbiya.server.validators.InsertValidation;
@@ -26,15 +26,15 @@ import java.util.Objects;
 @Log4j2
 @CrossOrigin(origins = "*")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class BytePackageController {
+public class ProductController {
 
-    private BytePackageService bytePackageService;
+    private ProductService productService;
 
     @GetMapping(value = EndPoint.BYTE_PACKAGE_REQUEST_SEARCH_DATA)
     @CrossOrigin(origins = "*")
     public ResponseEntity<Object> getReferenceData() {
         log.info("Received Byte Package Search Reference Data Request {} -");
-        return ResponseEntity.status(HttpStatus.OK).body(bytePackageService.getReferenceData());
+        return ResponseEntity.status(HttpStatus.OK).body(productService.getReferenceData());
     }
     @GetMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_FILTER_LIST}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
@@ -46,62 +46,64 @@ public class BytePackageController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String mealName,
             @RequestParam(required = false) BigDecimal price,
+            @RequestParam(required = false) String productCategory,
             @RequestParam(required = false) List<String> portion,
             @RequestParam(required = false) Boolean full,
             @RequestParam(required = false) Boolean dataTable,
             @RequestParam(required = false) Integer draw, Locale locale) throws Exception {
 
-        BytePackageRequestDTO bytePackageRequestDTO = new BytePackageRequestDTO();
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO();
         BytePackageSearchDTO searchDTO= new BytePackageSearchDTO();
         searchDTO.setMealName(mealName);
         searchDTO.setPrice(price);
         searchDTO.setPortionList(portion);
         searchDTO.setStatus(status);
+        searchDTO.setProductCategory(productCategory);
 
-        bytePackageRequestDTO.setBytePackageSearchDTO(searchDTO);
+        productRequestDTO.setBytePackageSearchDTO(searchDTO);
 
-        bytePackageRequestDTO.setPageNumber(start);
-        bytePackageRequestDTO.setPageSize(limit);
-        bytePackageRequestDTO.setSortColumn(sortBy);
+        productRequestDTO.setPageNumber(start);
+        productRequestDTO.setPageSize(limit);
+        productRequestDTO.setSortColumn(sortBy);
         if (Objects.nonNull(order) && !order.isEmpty()) {
-            bytePackageRequestDTO.setSortDirection(order.toUpperCase());
+            productRequestDTO.setSortDirection(order.toUpperCase());
         }
-        log.info("Received Byte Package get Filtered List Request {} -", bytePackageRequestDTO);
+        log.info("Received Byte Package get Filtered List Request {} -", productRequestDTO);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(bytePackageService.getBytePackageFilterList(bytePackageRequestDTO, locale));
+                .body(productService.getProductFilterList(productRequestDTO, locale));
     }
 
     @PostMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_FIND_ID}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     public ResponseEntity<Object> findBytePackage(@Validated({ FindValidation.class})
-            @RequestBody BytePackageRequestDTO bytePackageRequestDTO, Locale locale) throws Exception {
-        log.info("Received Byte Package find List Request {} -", bytePackageRequestDTO);
-        return bytePackageService.findBytePackageById(bytePackageRequestDTO, locale);
+            @RequestBody ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
+        log.info("Received Byte Package find List Request {} -", productRequestDTO);
+        return productService.findProductById(productRequestDTO, locale);
     }
 
     @PostMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_MGT}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
-    public ResponseEntity<Object> addBytePackage( @Validated({InsertValidation.class})
-            @RequestBody BytePackageRequestDTO bytePackageRequestDTO, Locale locale) throws Exception {
-        log.info("Received Byte Package add List Request {} -", bytePackageRequestDTO);
-        return bytePackageService.saveBytePackage(bytePackageRequestDTO, locale);
+    public ResponseEntity<Object> addBytePackage(@Validated({InsertValidation.class})
+            @RequestBody ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
+        log.info("Received Byte Package add List Request {} -", productRequestDTO);
+        return productService.saveProduct(productRequestDTO, locale);
     }
 
     @PutMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_MGT}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     public ResponseEntity<Object> updateBytePackage(@Validated({ UpdateValidation.class})
-            @RequestBody BytePackageRequestDTO bytePackageRequestDTO, Locale locale) throws Exception {
-        log.info("Received Byte Package update List Request {} -", bytePackageRequestDTO);
-        return bytePackageService.editBytePackage(bytePackageRequestDTO, locale);
+            @RequestBody ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
+        log.info("Received Byte Package update List Request {} -", productRequestDTO);
+        return productService.editProduct(productRequestDTO, locale);
     }
 
     @DeleteMapping(value = "/v1/admin-byte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     @ResponseBody
     public ResponseEntity<Object> deleteBytePackage(@PathVariable Long id, Locale locale) throws Exception {
-        BytePackageRequestDTO bytePackageRequestDTO = new BytePackageRequestDTO();
-        bytePackageRequestDTO.setPackageId(id);
-        log.info("Received Byte Package delete List Request {} -", bytePackageRequestDTO);
-        return bytePackageService.deleteBytePackage(bytePackageRequestDTO, locale);
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO();
+        productRequestDTO.setPackageId(id);
+        log.info("Received Byte Package delete List Request {} -", productRequestDTO);
+        return productService.deleteProduct(productRequestDTO, locale);
     }
 }

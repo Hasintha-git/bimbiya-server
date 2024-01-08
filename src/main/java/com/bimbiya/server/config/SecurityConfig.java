@@ -93,10 +93,11 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // Allow requests from your Angular application's origin
-        config.addAllowedOrigin("http://localhost:4200"); // Update with your Angular app's URL
+//        config.addAllowedOrigin("https://bimbiya-admin-ek0i3zihs-hasinthas-projects.vercel.app");// Update with your Angular app's URL
+        config.addAllowedOrigin("*");// Update with your Angular app's URL
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-        config.setAllowCredentials(true); // You may need this for certain cases
+        config.setAllowCredentials(false); // You may need this for certain cases
 
         source.registerCorsConfiguration("/**", config);
 

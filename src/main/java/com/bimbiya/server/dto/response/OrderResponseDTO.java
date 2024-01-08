@@ -6,12 +6,22 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @Data
 public class OrderResponseDTO {
     private Long orderId;
     private Long userId;
+
+
+    private String username;
+    private String fullName;
+    private String email;
+    private String mobileNo;
+    private String address;
+    private String city;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date orderDate;
     private BigDecimal totalAmount;
@@ -22,4 +32,6 @@ public class OrderResponseDTO {
     private Date createdTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date lastUpdatedTime;
+
+    private List<OrderDetailsResponseDTO> orderDetails;
 }

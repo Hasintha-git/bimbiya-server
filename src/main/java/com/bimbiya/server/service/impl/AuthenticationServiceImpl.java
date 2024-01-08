@@ -41,11 +41,6 @@ public class AuthenticationServiceImpl {
 
     public ResponseEntity<Object> loginUser(RegistrationDTO registrationDTO, Locale locale) {
         try{
-            UsernamePasswordAuthenticationToken us = new UsernamePasswordAuthenticationToken(registrationDTO.getUsername(), registrationDTO.getPassword());
-            Authentication authentication= authenticationManager.authenticate(us);
-
-            String token = tokenServiceImpl.generateJwtToken(authentication);
-
             SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatus(registrationDTO.getUsername(), Status.active)).orElse(
                     null
             );
@@ -55,6 +50,12 @@ public class AuthenticationServiceImpl {
                         ResponseCode.GET_SUCCESS, MessageConstant.USER_NOT_FOUND, new
                                 Object[]{registrationDTO.getUsername()},locale);
             }
+            UsernamePasswordAuthenticationToken us = new UsernamePasswordAuthenticationToken(registrationDTO.getUsername(), registrationDTO.getPassword());
+            Authentication authentication= authenticationManager.authenticate(us);
+
+            String token = tokenServiceImpl.generateJwtToken(authentication);
+
+
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO(systemUser, token);
             return responseGenerator
                     .generateSuccessResponse(registrationDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,

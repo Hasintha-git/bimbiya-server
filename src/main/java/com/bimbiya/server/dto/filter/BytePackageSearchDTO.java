@@ -13,4 +13,5 @@ public class BytePackageSearchDTO {
     private BigDecimal price;
     List<String> portionList;
     private String status;
+    private String productCategory;
 }

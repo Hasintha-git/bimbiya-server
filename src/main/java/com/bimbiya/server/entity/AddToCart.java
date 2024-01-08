@@ -18,7 +18,7 @@ public class AddToCart implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "byte_id", referencedColumnName = "package_id")
-    private BytePackage bpackage;
+    private Product bpackage;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")

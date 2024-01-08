@@ -18,7 +18,7 @@ import java.util.Locale;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Log4j2
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthenticationController {
@@ -29,13 +29,13 @@ public class AuthenticationController {
 
     @PostMapping(value = {"/register"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> registerUser(@Validated({InsertValidation.class}) @RequestBody UserRequestDTO userRequestDTO, Locale locale) throws Exception {
-        log.debug("Received Auth Register Request {} -", userRequestDTO);
+        log.info("Received Auth Register Request {} -", userRequestDTO);
         return userService.saveUser(userRequestDTO,locale);
     }
 
     @PostMapping(value = {"/login"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> loginUser(@Validated({LoginValidation.class}) @RequestBody RegistrationDTO registrationDTO, Locale locale) {
-        log.debug("Received Auth Login Request {} -", registrationDTO);
+        log.info("Received Auth Login Request {} -", registrationDTO);
         return authenticationServiceImpl.loginUser(registrationDTO,locale);
     }
 

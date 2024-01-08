@@ -4,13 +4,13 @@ import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.request.AddToCartRequestDTO;
 import com.bimbiya.server.dto.response.AddToCartResponseDTO;
 import com.bimbiya.server.entity.AddToCart;
-import com.bimbiya.server.entity.BytePackage;
+import com.bimbiya.server.entity.Product;
 import com.bimbiya.server.entity.SystemUser;
 import com.bimbiya.server.mapper.DtoToEntityMapper;
 import com.bimbiya.server.mapper.EntityToDtoMapper;
 import com.bimbiya.server.mapper.ResponseGenerator;
 import com.bimbiya.server.repository.AddToCartRepository;
-import com.bimbiya.server.repository.BytePackageRepository;
+import com.bimbiya.server.repository.ProductRepository;
 import com.bimbiya.server.repository.UserRepository;
 import com.bimbiya.server.service.AddToCartService;
 import com.bimbiya.server.util.MessageConstant;
@@ -40,7 +40,7 @@ public class AddToCartServiceImpl implements AddToCartService {
 
     private AddToCartRepository addToCartRepository;
     private UserRepository userRepository;
-    private BytePackageRepository bytePackageRepository;
+    private ProductRepository productRepository;
     private ModelMapper modelMapper;
     private ResponseGenerator responseGenerator;
     private MessageSource messageSource;
@@ -57,11 +57,11 @@ public class AddToCartServiceImpl implements AddToCartService {
                     .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(MessageConstant
                             .USER_NOT_FOUND, null, locale))).get();
 
-            BytePackage bytePackage = Optional.ofNullable(bytePackageRepository.findById(addToCartRequestDTO.getPackageId()))
+            Product product = Optional.ofNullable(productRepository.findById(addToCartRequestDTO.getPackageId()))
                     .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(MessageConstant
                             .BYTEPACKAGE_NOT_FOUND, null, locale))).get();
 
-            AddToCart addToCart = Optional.ofNullable(addToCartRepository.findBySystemUserAndBpackage(systemUser, bytePackage))
+            AddToCart addToCart = Optional.ofNullable(addToCartRepository.findBySystemUserAndBpackage(systemUser, product))
                     .orElse(null);
 
             if (Objects.nonNull(addToCart)) {
@@ -75,7 +75,7 @@ public class AddToCartServiceImpl implements AddToCartService {
 
             addToCart= new AddToCart();
             DtoToEntityMapper.mapAddToCart(addToCart,addToCartRequestDTO);
-            addToCart.setBpackage(bytePackage);
+            addToCart.setBpackage(product);
             addToCart.setSystemUser(systemUser);
 
             addToCartRepository.save(addToCart);

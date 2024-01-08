@@ -1,7 +1,9 @@
 package com.bimbiya.server.controller;
 
+import com.bimbiya.server.dto.request.EmailSendDTO;
 import com.bimbiya.server.dto.request.UserRequestDTO;
 import com.bimbiya.server.dto.filter.UserRequestSearchDTO;
+import com.bimbiya.server.service.NotificationService;
 import com.bimbiya.server.service.UserService;
 import com.bimbiya.server.util.EndPoint;
 import com.bimbiya.server.validators.DeleteValidation;
@@ -28,6 +30,7 @@ import java.util.Objects;
 public class UserController {
 
     private UserService userService;
+    private NotificationService notificationService;
 
     @GetMapping(value = EndPoint.USER_REQUEST_SEARCH_DATA)
     @CrossOrigin(origins = "*")
@@ -106,5 +109,53 @@ public class UserController {
         UserRequestDTO userRequestDTO=new UserRequestDTO();
         userRequestDTO.setId(id);
         return userService.deleteUser(userRequestDTO, locale);
+    }
+
+    @PutMapping(value = {EndPoint.USER_REQUEST_FORGET_PASSWORD}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> forgetPassword(
+                                             @RequestBody UserRequestDTO userRequestDTO, Locale locale) throws Exception {
+        log.info("Received User Forget Password List Request {} -", userRequestDTO);
+        return userService.forgetPassword(userRequestDTO, locale);
+    }
+
+    @PostMapping(value = {EndPoint.LOCK_USER+ "/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> lockUser(
+                                             @PathVariable Long id, Locale locale) throws Exception {
+        log.info("Received User Lock Request {} -", id);
+        UserRequestDTO userRequestDTO=new UserRequestDTO();
+        userRequestDTO.setId(id);
+        return userService.lockUser(userRequestDTO, locale);
+    }
+
+    @PostMapping(value = {EndPoint.UNLOCK_USER+ "/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> unlockUser(
+            @PathVariable Long id, Locale locale) throws Exception {
+        log.info("Received User Lock Request {} -", id);
+        UserRequestDTO userRequestDTO=new UserRequestDTO();
+        userRequestDTO.setId(id);
+        return userService.unlockUser(userRequestDTO, locale);
+    }
+    @GetMapping(value = {EndPoint.USER_REQUEST_DETAILS_FOR_DASHBOARD}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> forDashboard(Locale locale) throws Exception {
+        log.info("Received User find List Request {} -");
+        return userService.forDashboard( locale);
+    }
+
+    @PostMapping(value = "/forget-password/send-email", produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> forgetPassword(@RequestBody EmailSendDTO emailSendDTO, Locale locale) throws Exception {
+        log.info("Received Email send Request {} -"+emailSendDTO);
+        return notificationService.sendEmail(emailSendDTO, locale);
+    }
+
+    @PostMapping(value = "/ub/encript", produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public String encrpt(@RequestBody EmailSendDTO emailSendDTO, Locale locale) throws Exception {
+        log.info("Received Email send Request {} -"+emailSendDTO);
+        return notificationService.encript(emailSendDTO, locale);
     }
 }

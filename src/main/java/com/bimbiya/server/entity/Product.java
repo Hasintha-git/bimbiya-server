@@ -1,5 +1,6 @@
 package com.bimbiya.server.entity;
 
+import com.bimbiya.server.util.enums.Status;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,8 +10,8 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "Byte_package")
-public class BytePackage implements Serializable {
+@Table(name = "product")
+public class Product implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +22,8 @@ public class BytePackage implements Serializable {
     @Column(name = "img", nullable = false)
     private byte[] img;
 
-    @Column(name = "meal_name", nullable = false, length = 32)
-    private String mealName;
+    @Column(name = "product_name", nullable = false, length = 32)
+    private String productName;
 
     @Column(name = "description", nullable = false, length = 255)
     private String description;
@@ -33,8 +34,9 @@ public class BytePackage implements Serializable {
     @Column(name = "potion", nullable = false, length = 16)
     private String potion;
 
-    @Column(name = "status", nullable = false, length = 16)
-    private String status;
+    @Column(name = "STATUS", nullable = false, length = 16)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column(name = "CREATED_USER", nullable = false, length = 64)
     private String createdUser;
@@ -49,6 +51,12 @@ public class BytePackage implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LAST_UPDATED_TIME", nullable = false, length = 23)
     private Date lastUpdatedTime;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoryId", nullable = false)
+    private ProductCategory productCategory;
+
 
 //    @OneToMany(mappedBy = "bytePackage", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<BytePackageIngredients> packageIngredients = new ArrayList<>();

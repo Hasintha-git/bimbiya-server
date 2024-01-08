@@ -4,7 +4,11 @@ public class EndPoint {
     //    --------------------- User ---------------------
     public static final String USER_REQUEST_FILTER_LIST = "/v1/admin-user/filter-list";
     public static final String USER_REQUEST_FIND_ID = "/v1/admin-user/find-id";
+    public static final String USER_REQUEST_DETAILS_FOR_DASHBOARD = "/v1/admin-user/for-dashboard";
     public static final String USER_REQUEST_MGT = "/v1/admin-user";
+    public static final String USER_REQUEST_FORGET_PASSWORD = "/v1/admin-user/forget-password";
+    public static final String LOCK_USER = "/v1/admin-user/lock";
+    public static final String UNLOCK_USER = "/v1/admin-user/unlock";
     public static final String USER_REQUEST_SEARCH_DATA = "/v1/admin-user/search-reference-data";
 
     //    --------------------- Ingredient ---------------------
@@ -26,5 +30,8 @@ public class EndPoint {
     public static final String REMOVE_TO_CART = "/v1/client-cart/remove-to-cart";
     public static final String ORDER_REQUEST_SEARCH_DATA = "/v1/admin-order/search-reference-data";
     public static final String ORDER_REQUEST_FILTER_LIST = "/v1/admin-order/filter-list";
+    public static final String ORDER_REQUEST_FIND= "/v1/admin-order/find-id";
+    public static final String PLACE_ORDER= "/v1/admin-order/place-order";
+    public static final String ORDER_REQUEST_UPDATE= "/v1/admin-order/update-status";
 
 }

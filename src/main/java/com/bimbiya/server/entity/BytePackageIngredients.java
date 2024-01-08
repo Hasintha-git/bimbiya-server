@@ -20,5 +20,5 @@ public class BytePackageIngredients implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "package_id", referencedColumnName = "package_id", insertable = false, updatable = false)
-    private BytePackage bytePackage;
+    private Product product;
 }

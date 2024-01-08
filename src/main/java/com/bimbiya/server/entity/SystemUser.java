@@ -71,6 +71,9 @@ public class SystemUser extends CommonEntity implements UserDetails {
     @Column(name = "PASSWORD_EXPIRE_DATE", length = 19)
     private Date passwordExpireDate;
 
+    @Column(name = "OTP")
+    private Integer otp;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         System.out.println("llllllllllllllllll");

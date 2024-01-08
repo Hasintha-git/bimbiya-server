@@ -1,6 +1,7 @@
 package com.bimbiya.server.repository;
 
-import com.bimbiya.server.entity.BytePackage;
+import com.bimbiya.server.entity.Order;
+import com.bimbiya.server.entity.Product;
 import com.bimbiya.server.entity.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -10,5 +11,6 @@ import java.util.List;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long>, JpaSpecificationExecutor<OrderDetail> {
-    List<OrderDetail> findAllByBytePackage(BytePackage bytePackage);
+    List<OrderDetail> findAllByProduct(Product product);
+    List<OrderDetail> findAllByOrder(Order order);
 }

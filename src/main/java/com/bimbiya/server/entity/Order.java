@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 @Data
 @Entity
-@Table(name = "orders")
+@Table(name = "bimbiya_order")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +50,12 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LAST_UPDATED_TIME", nullable = false, length = 23)
     private Date lastUpdatedTime;
+
+    @Column(name = "person_count")
+    private Integer personCount;
+
+    @Column(name = "scheduled_time")
+    private LocalTime scheduledTime;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
