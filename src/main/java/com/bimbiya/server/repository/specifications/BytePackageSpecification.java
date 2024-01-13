@@ -4,7 +4,6 @@ import com.bimbiya.server.dto.filter.BytePackageSearchDTO;
 import com.bimbiya.server.entity.Product;
 import com.bimbiya.server.entity.ProductCategory_;
 import com.bimbiya.server.entity.Product_;
-import com.bimbiya.server.util.enums.ClientStatusEnum;
 import com.bimbiya.server.util.enums.Status;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -39,7 +38,7 @@ public class BytePackageSpecification {
            if (Objects.nonNull(bytePackageSearchDTO.getProductCategory()))
                 predicates.add(criteriaBuilder.equal(root.get(Product_.PRODUCT_CATEGORY).get(ProductCategory_.CODE), bytePackageSearchDTO.getProductCategory()));
 
-            predicates.add(criteriaBuilder.notEqual(root.get(Product_.STATUS), ClientStatusEnum.DELETED.getCode()));
+            predicates.add(criteriaBuilder.notEqual(root.get(Product_.STATUS), Status.deleted));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
@@ -47,7 +46,7 @@ public class BytePackageSpecification {
         return (Specification<Product>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(criteriaBuilder.notEqual(root.get(Product_.STATUS), ClientStatusEnum.DELETED.getCode()));
+            predicates.add(criteriaBuilder.notEqual(root.get(Product_.STATUS), Status.deleted));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

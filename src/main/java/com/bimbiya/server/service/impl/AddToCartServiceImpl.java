@@ -96,16 +96,16 @@ public class AddToCartServiceImpl implements AddToCartService {
     public Object getToCart(AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
         try {
 
-            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsername(addToCartRequestDTO.getUserName()))
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatus(addToCartRequestDTO.getUserName(), Status.active))
                     .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(MessageConstant
-                            .USER_NOT_FOUND, null, locale))).get();
+                            .USER_NOT_FOUND, null, locale)));
 
 
             List<AddToCart> addToCart = Optional.ofNullable(addToCartRepository.findAllBySystemUserAndStatusNot(systemUser, Status.deleted))
                     .orElse(null);
 
             List<AddToCartResponseDTO> collect = addToCart.stream()
-                    .map(ing -> EntityToDtoMapper.mapAddToCart(ing))
+                    .map(EntityToDtoMapper::mapAddToCart)
                     .collect(Collectors.toList());
 
             return new DataTableDTO<>(0L, (long) addToCart.size(), collect, null);

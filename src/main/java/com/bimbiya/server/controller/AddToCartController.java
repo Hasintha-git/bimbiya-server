@@ -50,7 +50,7 @@ public class AddToCartController {
 
     @DeleteMapping(value = {EndPoint.REMOVE_TO_CART}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
-    public ResponseEntity<Object> deleteIngredient(@Validated({ DeleteValidation.class})
+        public ResponseEntity<Object> removeToCart(@Validated({ DeleteValidation.class})
                                                        @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
         log.info("Received Remove to cart Request {} -", addToCartRequestDTO);
         return addToCartService.removeToCart(addToCartRequestDTO, locale);
