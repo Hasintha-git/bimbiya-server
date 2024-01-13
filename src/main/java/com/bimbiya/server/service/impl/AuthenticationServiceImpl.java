@@ -57,8 +57,8 @@ public class AuthenticationServiceImpl {
                     new UsernamePasswordAuthenticationToken(registrationDTO.getUsername(), registrationDTO.getPassword())
             );
 
-            String accessToken = tokenServiceImpl.generateAccessToken(authentication.getName());
-            String refreshToken = tokenServiceImpl.generateRefreshToken(authentication.getName());
+            String accessToken = tokenServiceImpl.generateJwtToken(authentication);
+            String refreshToken = tokenServiceImpl.generateJwtToken(authentication);
             Date accessTokenExpireDate =
                     new Date(Utility.getSystemDate().getTime() + accessTokenExpirationMs * 1000);
 
