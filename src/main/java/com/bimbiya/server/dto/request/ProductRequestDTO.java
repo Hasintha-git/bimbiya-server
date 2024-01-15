@@ -67,4 +67,6 @@ public class ProductRequestDTO {
 
     @NotBlank(message = "Description required", groups = {  InsertValidation.class, UpdateValidation.class })
     private String img;
+
+    private boolean isWeb;
 }

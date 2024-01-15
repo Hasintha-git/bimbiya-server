@@ -111,7 +111,7 @@ public class ProductServiceImpl implements ProductService {
             productRepository.count(bytePackageSpecification.generateSearchCriteria(productRequestDTO.getBytePackageSearchDTO()));
 
             List<ProductResponseDTO> collect = productList.stream()
-                    .map(byt -> EntityToDtoMapper.mapBytePackage(byt))
+                    .map(product -> EntityToDtoMapper.mapBytePackage(product, false))
                     .collect(Collectors.toList());
 
             return new DataTableDTO<>(fullCount, (long) collect.size(), collect, null);
@@ -128,6 +128,67 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    public Object getProductFilterListClient(ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
+        try {
+            PageRequest pageRequest;
+
+            if (Objects.nonNull(productRequestDTO.getSortColumn()) && Objects.nonNull(productRequestDTO.getSortDirection()) &&
+                    !productRequestDTO.getSortColumn().isEmpty() && !productRequestDTO.getSortDirection().isEmpty()) {
+                pageRequest = PageRequest.of(
+                        productRequestDTO.getPageNumber(), productRequestDTO.getPageSize(),
+                        Sort.by(Sort.Direction.valueOf(productRequestDTO.getSortDirection()), productRequestDTO.getSortColumn())
+                );
+            }else{
+                pageRequest = PageRequest.of(productRequestDTO.getPageNumber(), productRequestDTO.getPageSize());
+            }
+
+            List<Product> productList = ((Objects.isNull(productRequestDTO.getBytePackageSearchDTO())) ? productRepository.findAll
+                    (bytePackageSpecification.generateSearchCriteria(Status.deleted), pageRequest) :
+                    productRepository.findAll(bytePackageSpecification.generateSearchCriteria(productRequestDTO.getBytePackageSearchDTO()), pageRequest))
+                    .getContent();
+
+            Long fullCount = (Objects.isNull(productRequestDTO.getBytePackageSearchDTO())) ? productRepository.count
+                    (bytePackageSpecification.generateSearchCriteria(Status.deleted)) :
+                    productRepository.count(bytePackageSpecification.generateSearchCriteria(productRequestDTO.getBytePackageSearchDTO()));
+
+            List<ProductResponseDTO> collect = productList.stream()
+                    .map(product -> {
+                        ProductResponseDTO productResponseDTO = EntityToDtoMapper.mapBytePackage(product, true);
+                        return mapIngredientList(product, productResponseDTO);
+                    })
+                    .collect(Collectors.toList());
+
+
+            return new DataTableDTO<>(fullCount, (long) collect.size(), collect, null);
+
+        } catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        }catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public ProductResponseDTO mapIngredientList(Product product, ProductResponseDTO productResponseDTO) {
+        List<BytePackageIngredients> bytePackageIngredients = Optional.ofNullable(productIngredientsRepository.findAllByProduct(product)).orElse(null);
+
+        if (Objects.nonNull(bytePackageIngredients)) {
+            List<SimpleBaseDTO> byteIngredientsResponseDTOList= new ArrayList<>();
+            for (BytePackageIngredients bytePackageIngredient : bytePackageIngredients) {
+                SimpleBaseDTO simpleBaseDTO = new SimpleBaseDTO(bytePackageIngredient.getIngredients().getIngredientsId(), bytePackageIngredient.getIngredients().getIngredientsName());
+                byteIngredientsResponseDTOList.add(simpleBaseDTO);
+            }
+
+            productResponseDTO.setIngredients(byteIngredientsResponseDTOList);
+
+        }
+        return productResponseDTO;
+    }
+
+    @Override
+    @Transactional
     public ResponseEntity<Object> findProductById(ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
         try {
             Product product = Optional.ofNullable(productRepository.findByPackageIdAndStatusNot(productRequestDTO.getPackageId(), Status.deleted)).orElse(
@@ -140,9 +201,8 @@ public class ProductServiceImpl implements ProductService {
                                 Object[]{productRequestDTO.getPackageId()},locale);
             }
 
-            ProductResponseDTO productResponseDTO = EntityToDtoMapper.mapBytePackage(product);
+            ProductResponseDTO productResponseDTO = EntityToDtoMapper.mapBytePackage(product, true);
 
-            setBannerImage(product, productResponseDTO);
 
             List<BytePackageIngredients> bytePackageIngredients = Optional.ofNullable(productIngredientsRepository.findAllByProduct(product)).orElse(null);
 
@@ -168,14 +228,6 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    public static ProductResponseDTO setBannerImage(Product product, ProductResponseDTO productResponseDTO) {
-        if (Objects.nonNull(product.getImg())) {
-            String encode = "data:image/jpeg;base64," + new String(Base64.getEncoder().encode(product.getImg()));
-            productResponseDTO.setImg(encode);
-        }
-        return productResponseDTO;
-    }
-
     @Override
     @Transactional
     public ResponseEntity<Object> trendingPackagesList(ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
@@ -187,7 +239,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ResponseEntity<Object> saveProduct(ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
         try{
-            Product product = Optional.ofNullable(productRepository.findByProductNameAndStatusNot(productRequestDTO.getMealName(), ClientStatusEnum.DELETED.getCode()))
+            Product product = Optional.ofNullable(productRepository.findByProductNameAndStatusNot(productRequestDTO.getMealName(), Status.deleted))
                     .orElse(null);
 
             if (Objects.nonNull(product)) {
@@ -259,7 +311,7 @@ public class ProductServiceImpl implements ProductService {
             }
 
 
-            Product uniPackage = productRepository.findByProductNameAndStatusNotAndPackageIdNot(productRequestDTO.getMealName(), ClientStatusEnum.DELETED.getCode(), productRequestDTO.getPackageId())
+            Product uniPackage = productRepository.findByProductNameAndStatusNotAndPackageIdNot(productRequestDTO.getMealName(), Status.deleted, productRequestDTO.getPackageId())
                     .orElse(null);
 
             if (Objects.nonNull(uniPackage)) {

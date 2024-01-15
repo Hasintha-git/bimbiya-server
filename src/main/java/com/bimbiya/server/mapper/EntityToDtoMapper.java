@@ -4,8 +4,10 @@ package com.bimbiya.server.mapper;
 import com.bimbiya.server.dto.SimpleBaseDTO;
 import com.bimbiya.server.dto.response.*;
 import com.bimbiya.server.entity.*;
+import com.bimbiya.server.util.enums.ClientPotionEnum;
 import com.bimbiya.server.util.enums.ClientStatusEnum;
 
+import java.util.Base64;
 import java.util.Objects;
 
 public class EntityToDtoMapper {
@@ -93,7 +95,7 @@ public class EntityToDtoMapper {
         return ingredientsResponseDTO;
     }
 
-    public static ProductResponseDTO mapBytePackage(Product product) {
+    public static ProductResponseDTO mapBytePackage(Product product, boolean isWeb) {
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();
         productResponseDTO.setPackageId(product.getPackageId());
         productResponseDTO.setMealName(product.getProductName());
@@ -104,7 +106,9 @@ public class EntityToDtoMapper {
         productResponseDTO.setStatusDescription(ClientStatusEnum.getEnum(String.valueOf(product.getStatus())).getDescription());
         if (Objects.nonNull(product.getPotion())) {
             productResponseDTO.setPortion(product.getPotion());
+            productResponseDTO.setPortionDescription(ClientPotionEnum.getEnum(product.getPotion()).getDescription());
         }
+
 
         if (Objects.nonNull(product.getCreatedUser())) {
             productResponseDTO.setCreatedUser(product.getCreatedUser());
@@ -122,7 +126,17 @@ public class EntityToDtoMapper {
             productResponseDTO.setLastUpdatedTime(product.getLastUpdatedTime());
         }
 
+        if (isWeb) {
+            setProductImage(product, productResponseDTO);
+        }
         return productResponseDTO;
+    }
+
+    public static void setProductImage(Product product, ProductResponseDTO productResponseDTO) {
+        if (Objects.nonNull(product.getImg())) {
+            String encode = "data:image/jpeg;base64," + new String(Base64.getEncoder().encode(product.getImg()));
+            productResponseDTO.setImg(encode);
+        }
     }
 
     public static AddToCartResponseDTO mapAddToCart( AddToCart addToCart) {

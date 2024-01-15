@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/byte-package")
+@RequestMapping("/product")
 @Log4j2
 @CrossOrigin(origins = "*")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -45,9 +45,11 @@ public class ProductController {
             @RequestParam(required = false) String order,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String mealName,
-            @RequestParam(required = false) BigDecimal price,
+            @RequestParam(required = false) BigDecimal toPrice,
+            @RequestParam(required = false) BigDecimal fromPrice,
             @RequestParam(required = false) String productCategory,
             @RequestParam(required = false) List<String> portion,
+            @RequestParam(required = false) List<Long> ingredientList,
             @RequestParam(required = false) Boolean full,
             @RequestParam(required = false) Boolean dataTable,
             @RequestParam(required = false) Integer draw, Locale locale) throws Exception {
@@ -55,8 +57,10 @@ public class ProductController {
         ProductRequestDTO productRequestDTO = new ProductRequestDTO();
         BytePackageSearchDTO searchDTO= new BytePackageSearchDTO();
         searchDTO.setMealName(mealName);
-        searchDTO.setPrice(price);
+        searchDTO.setToPrice(toPrice);
+        searchDTO.setFromPrice(fromPrice);
         searchDTO.setPortionList(portion);
+        searchDTO.setIngredientList(ingredientList);
         searchDTO.setStatus(status);
         searchDTO.setProductCategory(productCategory);
 
@@ -71,6 +75,47 @@ public class ProductController {
         log.info("Received Byte Package get Filtered List Request {} -", productRequestDTO);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getProductFilterList(productRequestDTO, locale));
+    }
+
+    @GetMapping(value = {EndPoint.BYTE_PACKAGE_CLIENT_REQUEST_FILTER_LIST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> getBytePackageFilteredListForClient(
+            @RequestParam(required = false) Integer start,
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String mealName,
+            @RequestParam(required = false) BigDecimal toPrice,
+            @RequestParam(required = false) BigDecimal fromPrice,
+            @RequestParam(required = false) String productCategory,
+            @RequestParam(required = false) List<String> portion,
+            @RequestParam(required = false) List<Long> ingredientList,
+            @RequestParam(required = false) Boolean full,
+            @RequestParam(required = false) Boolean dataTable,
+            @RequestParam(required = false) Integer draw, Locale locale) throws Exception {
+
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO();
+        BytePackageSearchDTO searchDTO= new BytePackageSearchDTO();
+        searchDTO.setMealName(mealName);
+        searchDTO.setToPrice(toPrice);
+        searchDTO.setFromPrice(fromPrice);
+        searchDTO.setPortionList(portion);
+        searchDTO.setIngredientList(ingredientList);
+        searchDTO.setStatus(status);
+        searchDTO.setProductCategory(productCategory);
+
+        productRequestDTO.setBytePackageSearchDTO(searchDTO);
+
+        productRequestDTO.setPageNumber(start);
+        productRequestDTO.setPageSize(limit);
+        productRequestDTO.setSortColumn(sortBy);
+        if (Objects.nonNull(order) && !order.isEmpty()) {
+            productRequestDTO.setSortDirection(order.toUpperCase());
+        }
+        log.info("Received Byte Package get Filtered List Request {} -", productRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.getProductFilterListClient(productRequestDTO, locale));
     }
 
     @PostMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_FIND_ID}, produces = MediaType.APPLICATION_JSON_VALUE)

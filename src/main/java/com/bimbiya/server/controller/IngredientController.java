@@ -90,11 +90,11 @@ public class IngredientController {
         return ingredientService.editIngredient(ingredientsRequestDTO, locale);
     }
 
-    @DeleteMapping(value = {EndPoint.INGREDIENT_REQUEST_MGT}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = {EndPoint.INGREDIENT_REQUEST_MGT+"/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     public ResponseEntity<Object> deleteIngredient(@Validated({ DeleteValidation.class})
-                                                       @RequestBody IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception {
-        log.info("Received Ingredient delete List Request {} -", ingredientsRequestDTO);
-        return ingredientService.deleteIngredient(ingredientsRequestDTO, locale);
+                                                       @PathVariable Long id, Locale locale) throws Exception {
+        log.info("Received Ingredient delete List Request {} -", id);
+        return ingredientService.deleteIngredient(id, locale);
     }
 }

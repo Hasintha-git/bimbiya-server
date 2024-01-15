@@ -9,6 +9,7 @@ public interface ProductService {
     Object getReferenceData();
 
     Object getProductFilterList(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
+    Object getProductFilterListClient(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
 
     ResponseEntity<Object> findProductById(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
     ResponseEntity<Object> trendingPackagesList(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;

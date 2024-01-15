@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Product findByPackageIdAndStatusNot(Long id, Status status);
     Product findByPackageIdAndStatus(Long id, Status status);
-    Product findByProductNameAndStatusNot(String name, String status);
+    Product findByProductNameAndStatusNot(String name, Status status);
 
-    Optional<Product> findByProductNameAndStatusNotAndPackageIdNot(String name, String status, Long id);
+    Optional<Product> findByProductNameAndStatusNotAndPackageIdNot(String name, Status status, Long id);
 
 }

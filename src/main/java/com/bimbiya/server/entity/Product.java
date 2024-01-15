@@ -6,7 +6,9 @@ import lombok.Data;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -58,7 +60,7 @@ public class Product implements Serializable {
     private ProductCategory productCategory;
 
 
-//    @OneToMany(mappedBy = "bytePackage", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<BytePackageIngredients> packageIngredients = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BytePackageIngredients> packageIngredients = new ArrayList<>();
 
 }

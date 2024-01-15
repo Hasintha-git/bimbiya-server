@@ -16,5 +16,5 @@ public interface IngredientService {
 
     ResponseEntity<Object> editIngredient(IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception;
 
-    ResponseEntity<Object> deleteIngredient(IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception;
+    ResponseEntity<Object> deleteIngredient(Long id, Locale locale) throws Exception;
 }

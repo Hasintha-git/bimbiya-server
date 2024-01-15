@@ -1,6 +1,7 @@
 package com.bimbiya.server.dto.response;
 
 
+import com.bimbiya.server.dto.SimpleBaseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,4 +30,5 @@ public class ProductResponseDTO {
     private Date lastUpdatedTime;
     private String img;
     private List<Long> ingredientList;
+    private List<SimpleBaseDTO> ingredients;
 }

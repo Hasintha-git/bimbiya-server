@@ -198,15 +198,15 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> deleteIngredient(IngredientsRequestDTO ingredientsRequestDTO, Locale locale) throws Exception {
+    public ResponseEntity<Object> deleteIngredient(Long id, Locale locale) throws Exception {
         try{
-            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(ingredientsRequestDTO.getIngredientsId(), Status.deleted))
+            Ingredients ingredients = Optional.ofNullable(ingredientsRepository.findIngredientsByIngredientsIdAndStatusCodeNot(id, Status.deleted))
                     .orElse(null);
 
             if (Objects.isNull(ingredients)) {
                 return responseGenerator
-                        .generateErrorResponse(ingredientsRequestDTO, HttpStatus.CONFLICT,
-                                ResponseCode.NOT_FOUND ,  MessageConstant.INGREDIENT_NOT_FOUND, new Object[] {ingredientsRequestDTO.getIngredientsName()},
+                        .generateErrorResponse(null, HttpStatus.CONFLICT,
+                                ResponseCode.NOT_FOUND ,  MessageConstant.INGREDIENT_NOT_FOUND, new Object[] {id},
                                 locale);
             }
 
@@ -214,8 +214,8 @@ public class IngredientServiceImpl implements IngredientService {
             ingredients.setLastUpdatedTime(new Date());
 
             ingredientsRepository.save(ingredients);
-            return responseGenerator.generateSuccessResponse(ingredientsRequestDTO, HttpStatus.OK,
-                    ResponseCode.SAVED_SUCCESS, MessageConstant.INGREDIENT_SUCCESSFULLY_DELETE, locale, new Object[] {ingredientsRequestDTO.getIngredientsName()});
+            return responseGenerator.generateSuccessResponse(null, HttpStatus.OK,
+                    ResponseCode.SAVED_SUCCESS, MessageConstant.INGREDIENT_SUCCESSFULLY_DELETE, locale, new Object[] {id});
         }
         catch (EntityNotFoundException ex) {
             log.info(ex.getMessage());

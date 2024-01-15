@@ -1,9 +1,7 @@
 package com.bimbiya.server.repository.specifications;
 
 import com.bimbiya.server.dto.filter.BytePackageSearchDTO;
-import com.bimbiya.server.entity.Product;
-import com.bimbiya.server.entity.ProductCategory_;
-import com.bimbiya.server.entity.Product_;
+import com.bimbiya.server.entity.*;
 import com.bimbiya.server.util.enums.Status;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -32,8 +30,19 @@ public class BytePackageSpecification {
                 predicates
                         .add(root.get(Product_.POTION).in(bytePackageSearchDTO.getPortionList()));
 
-            if (Objects.nonNull(bytePackageSearchDTO.getPrice()))
-                predicates.add(criteriaBuilder.equal(root.get(Product_.PRICE), bytePackageSearchDTO.getPrice()));
+            if (Objects.nonNull(bytePackageSearchDTO.getIngredientList()))
+                predicates
+                        .add(root.get(Product_.PACKAGE_INGREDIENTS).get(BytePackageIngredients_.INGREDIENTS).get(Ingredients_.INGREDIENTS_ID).in(bytePackageSearchDTO.getIngredientList()));
+
+            if (Objects.nonNull(bytePackageSearchDTO.getFromPrice())) {
+                    predicates.add(criteriaBuilder.greaterThan(root.get(Product_.PRICE),
+                            bytePackageSearchDTO.getFromPrice()));
+                }
+
+           if (Objects.nonNull(bytePackageSearchDTO.getToPrice())) {
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get(Product_.PRICE),
+                            bytePackageSearchDTO.getToPrice()));
+                }
 
            if (Objects.nonNull(bytePackageSearchDTO.getProductCategory()))
                 predicates.add(criteriaBuilder.equal(root.get(Product_.PRODUCT_CATEGORY).get(ProductCategory_.CODE), bytePackageSearchDTO.getProductCategory()));

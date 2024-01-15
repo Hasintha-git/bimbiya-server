@@ -10,8 +10,10 @@ import java.util.List;
 @Data
 public class BytePackageSearchDTO {
     private String mealName;
-    private BigDecimal price;
+    private BigDecimal toPrice;
+    private BigDecimal fromPrice;
     List<String> portionList;
+    List<Long> ingredientList;
     private String status;
     private String productCategory;
 }

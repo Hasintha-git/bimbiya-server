@@ -19,10 +19,11 @@ public class EndPoint {
 
 
     //    --------------------- Ingredient ---------------------
-    public static final String BYTE_PACKAGE_REQUEST_FILTER_LIST = "/v1/admin-byte/filter-list";
-    public static final String BYTE_PACKAGE_REQUEST_FIND_ID = "/v1/admin-byte/find-id";
-    public static final String BYTE_PACKAGE_REQUEST_MGT = "/v1/admin-byte";
-    public static final String BYTE_PACKAGE_REQUEST_SEARCH_DATA = "/v1/admin-byte/search-reference-data";
+    public static final String BYTE_PACKAGE_REQUEST_FILTER_LIST = "/v1/filter-list";
+    public static final String BYTE_PACKAGE_CLIENT_REQUEST_FILTER_LIST = "/v1/client/filter-list";
+    public static final String BYTE_PACKAGE_REQUEST_FIND_ID = "/v1/find-id";
+    public static final String BYTE_PACKAGE_REQUEST_MGT = "/v1/manage";
+    public static final String BYTE_PACKAGE_REQUEST_SEARCH_DATA = "/v1/search-reference-data";
 
     //    --------------------- ORDER ---------------------
     public static final String ADD_TO_CART = "/v1/client-cart/add-to-cart";
