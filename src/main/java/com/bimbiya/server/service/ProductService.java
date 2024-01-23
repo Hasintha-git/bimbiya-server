@@ -12,7 +12,7 @@ public interface ProductService {
     Object getProductFilterListClient(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
 
     ResponseEntity<Object> findProductById(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
-    ResponseEntity<Object> trendingPackagesList(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
+    Object trendingPackagesList(String username, Locale locale) throws Exception;
 
     ResponseEntity<Object> saveProduct(ProductRequestDTO productRequestDTO, Locale locale) throws Exception;
 

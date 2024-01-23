@@ -6,6 +6,8 @@ import com.bimbiya.server.util.enums.Status;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +28,19 @@ public class BytePackageSpecification {
                 predicates.add(criteriaBuilder.equal(root.get(Product_.STATUS), bytePackageSearchDTO.getStatus()));
 
 
-            if (Objects.nonNull(bytePackageSearchDTO.getPortionList()))
+            if (Objects.nonNull(bytePackageSearchDTO.getPortionList()) && bytePackageSearchDTO.getPortionList().size() != 0)
                 predicates
                         .add(root.get(Product_.POTION).in(bytePackageSearchDTO.getPortionList()));
 
-            if (Objects.nonNull(bytePackageSearchDTO.getIngredientList()))
-                predicates
-                        .add(root.get(Product_.PACKAGE_INGREDIENTS).get(BytePackageIngredients_.INGREDIENTS).get(Ingredients_.INGREDIENTS_ID).in(bytePackageSearchDTO.getIngredientList()));
+            if (Objects.nonNull(bytePackageSearchDTO.getIngredientList()) && bytePackageSearchDTO.getIngredientList().size() != 0) {
+                // Join the BytePackageIngredients entity
+                Join<Product, BytePackageIngredients> packageIngredientsJoin = root.join(Product_.PACKAGE_INGREDIENTS, JoinType.LEFT);
+
+                // Join the Ingredients entity
+                Join<BytePackageIngredients, Ingredients> ingredientsJoin = packageIngredientsJoin.join(BytePackageIngredients_.INGREDIENTS, JoinType.LEFT);
+
+                predicates.add(ingredientsJoin.get(Ingredients_.INGREDIENTS_ID).in(bytePackageSearchDTO.getIngredientList()));
+            }
 
             if (Objects.nonNull(bytePackageSearchDTO.getFromPrice())) {
                     predicates.add(criteriaBuilder.greaterThan(root.get(Product_.PRICE),

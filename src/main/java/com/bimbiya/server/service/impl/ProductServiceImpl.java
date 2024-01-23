@@ -24,6 +24,7 @@ import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -230,9 +231,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> trendingPackagesList(ProductRequestDTO productRequestDTO, Locale locale) throws Exception {
-        // need dev with order
-        return null;
+    public Object trendingPackagesList(String username, Locale locale) throws Exception {
+        try {
+            int pageSize = 10;
+            int pageNumber = 0;
+
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            List<Product> products = productRepository.findByStatus(Status.active, pageable);
+
+
+            List<ProductResponseDTO> collect = products.stream()
+                    .map(product -> {
+                        ProductResponseDTO productResponseDTO = EntityToDtoMapper.mapBytePackage(product, true);
+                        return mapIngredientList(product, productResponseDTO);
+                    })
+                    .collect(Collectors.toList());
+
+            return new DataTableDTO<>(0L, (long) collect.size(), collect, null);
+        } catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw ex;
+        }
     }
 
     @Override

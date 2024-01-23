@@ -20,6 +20,7 @@ public class EndPoint {
 
     //    --------------------- Ingredient ---------------------
     public static final String BYTE_PACKAGE_REQUEST_FILTER_LIST = "/v1/filter-list";
+    public static final String BYTE_PACKAGE_REQUEST_TRENDING_LIST = "/v1/trending-list";
     public static final String BYTE_PACKAGE_CLIENT_REQUEST_FILTER_LIST = "/v1/client/filter-list";
     public static final String BYTE_PACKAGE_REQUEST_FIND_ID = "/v1/find-id";
     public static final String BYTE_PACKAGE_REQUEST_MGT = "/v1/manage";

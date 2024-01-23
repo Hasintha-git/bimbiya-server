@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.bimbiya</groupId>
 	<artifactId>server</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>Bimbiya</name>
 	<description>Bimbiya project for Spring Boot</description>
 

@@ -118,6 +118,16 @@ public class ProductController {
                 .body(productService.getProductFilterListClient(productRequestDTO, locale));
     }
 
+    @GetMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_TRENDING_LIST}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<Object> getBytePackageTrendingList( Locale locale) throws Exception {
+
+        log.info("Received Byte Package get Trending List Request {} -");
+        String username ="admin";
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.trendingPackagesList(username, locale));
+    }
+
     @PostMapping(value = {EndPoint.BYTE_PACKAGE_REQUEST_FIND_ID}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     public ResponseEntity<Object> findBytePackage(@Validated({ FindValidation.class})
