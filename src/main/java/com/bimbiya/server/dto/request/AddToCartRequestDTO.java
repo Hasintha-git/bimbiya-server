@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalTime;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -27,6 +28,10 @@ public class AddToCartRequestDTO {
 
     @NotBlank(message = "User name required", groups = {  InsertValidation.class, FindValidation.class})
     private String userName;
+
+    private Integer personCount;
+
+    private LocalTime scheduledTime;
 
     private String status;
     private String activeUser;

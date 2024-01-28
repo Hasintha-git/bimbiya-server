@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalTime;
 
 @Data
 @Entity
@@ -31,5 +32,9 @@ public class AddToCart implements Serializable {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "person_count")
+    private Integer personCount;
 
+    @Column(name = "scheduled_time")
+    private LocalTime scheduledTime;
 }

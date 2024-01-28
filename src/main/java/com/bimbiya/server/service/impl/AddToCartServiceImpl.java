@@ -77,6 +77,8 @@ public class AddToCartServiceImpl implements AddToCartService {
             DtoToEntityMapper.mapAddToCart(addToCart,addToCartRequestDTO);
             addToCart.setBpackage(product);
             addToCart.setSystemUser(systemUser);
+            addToCart.setPersonCount(addToCartRequestDTO.getPersonCount());
+            addToCart.setScheduledTime(addToCartRequestDTO.getScheduledTime());
 
             addToCartRepository.save(addToCart);
             return responseGenerator.generateSuccessResponse(addToCartRequestDTO, HttpStatus.OK,

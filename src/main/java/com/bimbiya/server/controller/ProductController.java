@@ -152,7 +152,7 @@ public class ProductController {
         return productService.editProduct(productRequestDTO, locale);
     }
 
-    @DeleteMapping(value = "/v1/admin-byte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/v1/manage/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
     @ResponseBody
     public ResponseEntity<Object> deleteBytePackage(@PathVariable Long id, Locale locale) throws Exception {
