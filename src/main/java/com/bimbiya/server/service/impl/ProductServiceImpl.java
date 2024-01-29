@@ -209,11 +209,14 @@ public class ProductServiceImpl implements ProductService {
 
             if (Objects.nonNull(bytePackageIngredients)) {
                 List<Long> byteIngredientsResponseDTOList= new ArrayList<>();
+                List<String> ingredientsResponseDTOList= new ArrayList<>();
                 for (BytePackageIngredients bytePackageIngredient : bytePackageIngredients) {
                     byteIngredientsResponseDTOList.add(bytePackageIngredient.getIngredients().getIngredientsId());
+                    ingredientsResponseDTOList.add(bytePackageIngredient.getIngredients().getIngredientsName());
                 }
 
                 productResponseDTO.setIngredientList(byteIngredientsResponseDTOList);
+                productResponseDTO.setIngredientNameList(ingredientsResponseDTOList);
 
             }
 

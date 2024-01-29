@@ -38,5 +38,9 @@ public class AuthenticationController {
         log.info("Received Auth Login Request {} -", registrationDTO);
         return authenticationServiceImpl.loginUser(registrationDTO,locale);
     }
-
+    @PostMapping(value = {"/user-login"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> loginClient(@Validated({LoginValidation.class}) @RequestBody RegistrationDTO registrationDTO, Locale locale) {
+        log.info("Received Auth Login Client Request {} -", registrationDTO);
+        return authenticationServiceImpl.loginClient(registrationDTO,locale);
+    }
 }

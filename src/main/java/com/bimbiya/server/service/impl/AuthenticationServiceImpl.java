@@ -3,8 +3,10 @@ package com.bimbiya.server.service.impl;
 import com.bimbiya.server.dto.request.RegistrationDTO;
 import com.bimbiya.server.dto.response.LoginResponseDTO;
 import com.bimbiya.server.entity.SystemUser;
+import com.bimbiya.server.entity.UserRole;
 import com.bimbiya.server.mapper.ResponseGenerator;
 import com.bimbiya.server.repository.UserRepository;
+import com.bimbiya.server.repository.UserRoleRepository;
 import com.bimbiya.server.util.MessageConstant;
 import com.bimbiya.server.util.ResponseCode;
 import com.bimbiya.server.util.Utility;
@@ -33,6 +35,7 @@ import java.util.Optional;
 public class AuthenticationServiceImpl {
 
     private UserRepository userRepository;
+    private UserRoleRepository userRoleRepository;
 
     private AuthenticationManager authenticationManager;
 
@@ -45,7 +48,47 @@ public class AuthenticationServiceImpl {
 
     public ResponseEntity<Object> loginUser(RegistrationDTO registrationDTO, Locale locale) {
         try {
-            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatus(registrationDTO.getUsername(), Status.active)).orElse(null);
+            UserRole userRole = userRoleRepository.findByCodeAndStatusCode("admin", Status.active);
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatusAndUserRole(registrationDTO.getUsername(), Status.active,userRole)).orElse(null);
+
+            if (Objects.isNull(systemUser)) {
+                return responseGenerator.generateErrorResponse(registrationDTO, HttpStatus.NOT_FOUND,
+                        ResponseCode.GET_SUCCESS, MessageConstant.USER_NOT_FOUND, new
+                                Object[]{registrationDTO.getUsername()}, locale);
+            }
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(registrationDTO.getUsername(), registrationDTO.getPassword())
+            );
+
+            String accessToken = tokenServiceImpl.generateJwtToken(authentication);
+            String refreshToken = tokenServiceImpl.generateJwtToken(authentication);
+            Date accessTokenExpireDate =
+                    new Date(Utility.getSystemDate().getTime() + accessTokenExpirationMs * 1000);
+
+            Date refreshTokenExpireDate =
+                    new Date(Utility.getSystemDate().getTime() + refreshTokenExpirationMs);
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO(systemUser, accessToken, refreshToken,accessTokenExpireDate,refreshTokenExpireDate);
+
+            // Return the JWT tokens in the response header
+            return ResponseEntity.status(HttpStatus.OK)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .header("Refresh-Token", refreshToken)
+                    .body(responseGenerator.generateSuccessResponse(
+                            registrationDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,
+                            MessageConstant.SUCCESSFULLY_GET, locale, loginResponseDTO)
+                    );
+        } catch (AuthenticationException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    public ResponseEntity<Object> loginClient(RegistrationDTO registrationDTO, Locale locale) {
+        try {
+
+            UserRole userRole = userRoleRepository.findByCodeAndStatusCode("client", Status.active);
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatusAndUserRole(registrationDTO.getUsername(), Status.active,userRole)).orElse(null);
 
             if (Objects.isNull(systemUser)) {
                 return responseGenerator.generateErrorResponse(registrationDTO, HttpStatus.NOT_FOUND,

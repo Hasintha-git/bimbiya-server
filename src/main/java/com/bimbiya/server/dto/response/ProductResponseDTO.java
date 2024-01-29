@@ -30,5 +30,6 @@ public class ProductResponseDTO {
     private Date lastUpdatedTime;
     private String img;
     private List<Long> ingredientList;
+    private List<String> ingredientNameList;
     private List<SimpleBaseDTO> ingredients;
 }

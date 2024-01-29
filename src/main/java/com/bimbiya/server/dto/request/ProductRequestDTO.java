@@ -61,7 +61,6 @@ public class ProductRequestDTO {
 
     private BytePackageSearchDTO bytePackageSearchDTO;
 
-    @NotNull(message = "Ingredients required", groups = {  InsertValidation.class, UpdateValidation.class })
     private List<Long> ingredientList;
 
 

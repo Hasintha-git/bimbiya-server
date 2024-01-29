@@ -1,6 +1,7 @@
 package com.bimbiya.server.repository;
 
 import com.bimbiya.server.entity.SystemUser;
+import com.bimbiya.server.entity.UserRole;
 import com.bimbiya.server.util.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,6 +13,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<SystemUser, Long>, JpaSpecificationExecutor<SystemUser> {
     Optional<SystemUser> findByUsername(String userName);
     SystemUser findByUsernameAndStatus(String userName, Status status);
+    SystemUser findByUsernameAndStatusAndUserRole(String userName, Status status, UserRole userRole);
     SystemUser findByUsernameAndStatusNot(String userName,Status status);
     SystemUser findByEmailAndStatusNot(String email,Status status);
     SystemUser findByNicAndStatusNot(String nic,Status status);
