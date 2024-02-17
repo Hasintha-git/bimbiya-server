@@ -68,12 +68,12 @@ public class AuthenticationServiceImpl {
 
             Date refreshTokenExpireDate =
                     new Date(Utility.getSystemDate().getTime() + refreshTokenExpirationMs);
-            LoginResponseDTO loginResponseDTO = new LoginResponseDTO(systemUser, accessToken, refreshToken,accessTokenExpireDate,refreshTokenExpireDate);
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO(accessToken, refreshToken, accessTokenExpireDate, refreshTokenExpireDate);
 
             // Return the JWT tokens in the response header
             return ResponseEntity.status(HttpStatus.OK)
-                    .header("Authorization", "Bearer " + accessToken)
-                    .header("Refresh-Token", refreshToken)
+                    .header("Authorization", accessToken)
+                    .header("RefreshToken", "sssss")
                     .body(responseGenerator.generateSuccessResponse(
                             registrationDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,
                             MessageConstant.SUCCESSFULLY_GET, locale, loginResponseDTO)
@@ -107,16 +107,23 @@ public class AuthenticationServiceImpl {
 
             Date refreshTokenExpireDate =
                     new Date(Utility.getSystemDate().getTime() + refreshTokenExpirationMs);
-            LoginResponseDTO loginResponseDTO = new LoginResponseDTO(systemUser, accessToken, refreshToken,accessTokenExpireDate,refreshTokenExpireDate);
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO(accessToken, refreshToken, accessTokenExpireDate, refreshTokenExpireDate);
+
+            loginResponseDTO.setUserId(systemUser.getId());
+            loginResponseDTO.setUserName(systemUser.getUsername());
+
+
+            return responseGenerator.generateSuccessResponse(registrationDTO, HttpStatus.OK,
+                    ResponseCode.GET_SUCCESS, MessageConstant.SUCCESSFULLY_GET, locale, loginResponseDTO);
 
             // Return the JWT tokens in the response header
-            return ResponseEntity.status(HttpStatus.OK)
-                    .header("Authorization", "Bearer " + accessToken)
-                    .header("Refresh-Token", refreshToken)
-                    .body(responseGenerator.generateSuccessResponse(
-                            registrationDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,
-                            MessageConstant.SUCCESSFULLY_GET, locale, loginResponseDTO)
-                    );
+//            return ResponseEntity.status(HttpStatus.OK)
+//                    .header("Authorization", "Bearer " + accessToken)
+//                    .header("Refresh-Token", refreshToken)
+//                    .body(responseGenerator.generateSuccessResponse(
+//                            registrationDTO, HttpStatus.OK, ResponseCode.GET_SUCCESS,
+//                            MessageConstant.SUCCESSFULLY_GET, locale, loginResponseDTO)
+//                    );
         } catch (AuthenticationException e) {
             log.error(e.getMessage());
             throw e;

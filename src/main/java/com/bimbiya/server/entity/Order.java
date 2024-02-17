@@ -33,6 +33,9 @@ public class Order {
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "delivery_charge", nullable = false, precision = 10, scale = 2)
+    private BigDecimal deliveryCharge;
+
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -50,9 +53,6 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LAST_UPDATED_TIME", nullable = false, length = 23)
     private Date lastUpdatedTime;
-
-    @Column(name = "person_count")
-    private Integer personCount;
 
     @Column(name = "scheduled_time")
     private LocalTime scheduledTime;

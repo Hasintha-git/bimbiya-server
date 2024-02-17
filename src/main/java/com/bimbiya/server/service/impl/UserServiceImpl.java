@@ -2,6 +2,7 @@ package com.bimbiya.server.service.impl;
 
 import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.SimpleBaseDTO;
+import com.bimbiya.server.dto.request.EmailSendDTO;
 import com.bimbiya.server.dto.request.UserRequestDTO;
 import com.bimbiya.server.dto.response.DashboardResponseDTO;
 import com.bimbiya.server.dto.response.UserResponseDTO;
@@ -15,10 +16,13 @@ import com.bimbiya.server.repository.OrderRepository;
 import com.bimbiya.server.repository.UserRepository;
 import com.bimbiya.server.repository.UserRoleRepository;
 import com.bimbiya.server.repository.specifications.UserSpecification;
+import com.bimbiya.server.service.NotificationService;
 import com.bimbiya.server.service.UserService;
 import com.bimbiya.server.util.MessageConstant;
 import com.bimbiya.server.util.ResponseCode;
+import com.bimbiya.server.util.enums.ClientDistrictEnum;
 import com.bimbiya.server.util.enums.ClientStatusEnum;
+import com.bimbiya.server.util.enums.District;
 import com.bimbiya.server.util.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -56,6 +60,7 @@ public class UserServiceImpl implements UserService {
 
 
     private PasswordEncoder passwordEncoder;
+    private NotificationService notificationService;
 
     @Override
     public Object getReferenceData() {
@@ -64,6 +69,10 @@ public class UserServiceImpl implements UserService {
 
             //get status
             List<SimpleBaseDTO> defaultStatus = Stream.of(ClientStatusEnum.values()).map(statusEnum -> new SimpleBaseDTO(statusEnum.getCode(), statusEnum.getDescription())).collect(Collectors.toList());
+
+            //get district
+            List<SimpleBaseDTO> district = Stream.of(ClientDistrictEnum.values()).map(statusEnum -> new SimpleBaseDTO(statusEnum.getCode(), statusEnum.getDescription())).collect(Collectors.toList());
+
             //get user role list
             List<UserRole> data = userRoleRepository.findAllByStatusCode(Status.active);
             List<SimpleBaseDTO> simpleBaseDTOList = data.stream().map(userRole -> {
@@ -73,6 +82,7 @@ public class UserServiceImpl implements UserService {
 
             //set data
             refData.put("statusList", defaultStatus);
+            refData.put("districtList", district);
             refData.put("userRoleList", simpleBaseDTOList);
 
             return refData;
@@ -80,6 +90,77 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             log.error("Exception : ", e);
             throw e;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Integer sentOtp(String email, Locale locale) throws Exception {
+        try {
+            EmailSendDTO emailSendDTO = new EmailSendDTO();
+            emailSendDTO.setToEmail(email);
+            emailSendDTO.setSubject("Bimbiya account verification OTP");
+
+            Random random = new Random();
+
+            // Generate a random 6-digit number
+            int min = 100000; // Minimum 6-digit number
+            int max = 999999; // Maximum 6-digit number
+            int randomNumber = random.nextInt(max - min + 1) + min;
+
+
+            String body = "Dear User,\n\n"
+                    + "Your verification OTP is: " + randomNumber + ".\n\n"
+                    + "Best regards,\n"
+                    + "Bimbiya Team";
+            emailSendDTO.setBody(body);
+            notificationService.emailSent(emailSendDTO, locale);
+
+            return randomNumber;
+        } catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> confirmOtp(Integer otp, String userName, Locale locale) throws Exception {
+        try {
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatus(userName, Status.blocked))
+                    .orElse(null);
+            if (Objects.isNull(systemUser)) {
+                return responseGenerator
+                        .generateErrorResponse(userName, HttpStatus.CONFLICT,
+                                ResponseCode.NOT_FOUND, MessageConstant.USER_NOT_FOUND, new Object[]{userName},
+                                locale);
+            }
+
+            if (otp.equals(systemUser.getOtp())) {
+
+                systemUser.setStatus(Status.active);
+                userRepository.save(systemUser);
+                return responseGenerator
+                        .generateSuccessResponse(userName, HttpStatus.OK, ResponseCode.SAVED_SUCCESS,
+                                MessageConstant.SUCCESS_OTP, locale, new Object[]{userName});
+            }
+
+            systemUser.setStatus(Status.deleted);
+            userRepository.save(systemUser);
+            return responseGenerator
+                    .generateErrorResponse(userName, HttpStatus.CONFLICT,
+                            ResponseCode.NOT_FOUND, MessageConstant.WRONG_OTP, new Object[]{userName},
+                            locale);
+
+        } catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw ex;
         }
     }
 
@@ -185,14 +266,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> saveUser(UserRequestDTO userRequestDTO, Locale locale) throws Exception {
-        try{
+    public ResponseEntity<Object> saveUser(UserRequestDTO userRequestDTO, Locale locale, boolean client) throws Exception {
+        try {
             SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatusNot(userRequestDTO.getUsername(), Status.deleted))
                     .orElse(null);
             if (Objects.nonNull(systemUser)) {
                 return responseGenerator
                         .generateErrorResponse(userRequestDTO, HttpStatus.CONFLICT,
-                                ResponseCode.ALREADY_EXIST ,  MessageConstant.USER_NAME_ALREADY_EXIST, new Object[] {userRequestDTO.getUsername()},
+                                ResponseCode.ALREADY_EXIST, MessageConstant.USER_NAME_ALREADY_EXIST, new Object[]{userRequestDTO.getUsername()},
                                 locale);
             }
             systemUser = Optional.ofNullable(userRepository.findByEmailAndStatusNot(userRequestDTO.getEmail(), Status.deleted))
@@ -252,6 +333,7 @@ public class UserServiceImpl implements UserService {
                 systemUser.setStatus(Status.active);
             }
             systemUser.setPwStatus(Status.active);
+            systemUser.setDistrict(District.valueOf(userRequestDTO.getDistrict()));
             systemUser.setPasswordExpireDate(systemDate);
             if (Objects.nonNull(userRequestDTO.getActiveUserName())) {
                 systemUser.setCreatedUser(userRequestDTO.getActiveUserName());
@@ -269,8 +351,21 @@ public class UserServiceImpl implements UserService {
             systemUser.setPassword(encode);
 
             userRepository.save(systemUser);
+
+            if (client) {
+                Integer randomNumber = sentOtp(systemUser.getEmail(), locale);
+                systemUser.setStatus(Status.blocked);
+                userRepository.save(systemUser);
+
+                systemUser.setLastUpdatedTime(systemDate);
+                systemUser.setOtp(randomNumber);
+                userRepository.save(systemUser);
+
+                return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
+                        ResponseCode.SAVED_SUCCESS, MessageConstant.OTP_SENT, locale, new Object[]{userRequestDTO.getEmail()});
+            }
             return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
-                    ResponseCode.SAVED_SUCCESS, MessageConstant.USER_SUCCESSFULLY_SAVE, locale, new Object[] {userRequestDTO.getUsername()});
+                    ResponseCode.SAVED_SUCCESS, MessageConstant.USER_SUCCESSFULLY_SAVE, locale, new Object[]{userRequestDTO.getUsername()});
         }
         catch (EntityNotFoundException ex) {
             log.info(ex.getMessage());

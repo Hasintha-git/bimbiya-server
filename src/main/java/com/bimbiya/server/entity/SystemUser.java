@@ -1,5 +1,6 @@
 package com.bimbiya.server.entity;
 
+import com.bimbiya.server.util.enums.District;
 import com.bimbiya.server.util.enums.Status;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -55,6 +56,10 @@ public class SystemUser extends CommonEntity implements UserDetails {
     @Column(name = "STATUS", nullable = false, length = 8)
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name = "DISTRICT", nullable = false, length = 10)
+    @Enumerated(EnumType.STRING)
+    private District district;
 
     @Column(name = "PASSWORD_STATUS", length = 8)
     @Enumerated(EnumType.STRING)

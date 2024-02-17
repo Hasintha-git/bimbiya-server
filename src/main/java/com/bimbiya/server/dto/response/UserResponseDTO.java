@@ -21,6 +21,8 @@ public class UserResponseDTO {
     private String address;
     private String city;
     private String status;
+    private String district;
+    private String districtDescription;
     private String pwStatus;
     private String statusDescription;
     private String passwordStatusDescription;

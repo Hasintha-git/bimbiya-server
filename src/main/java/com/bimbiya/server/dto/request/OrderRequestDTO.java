@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Hasintha_S
@@ -23,34 +24,25 @@ import java.util.Date;
 @Data
 public class OrderRequestDTO {
 
-    @NotNull(message = "Order Id id required", groups = { FindValidation.class, UpdateValidation.class })
+    @NotNull(message = "Order Id id required", groups = {FindValidation.class, UpdateValidation.class})
     private Long orderId;
 
-    @NotNull(message = "User Id required", groups = { UpdateValidation.class , InsertValidation.class })
+    @NotNull(message = "User Id required", groups = {UpdateValidation.class, InsertValidation.class})
     private Long userId;
-
-    @NotNull(message = "Product Id required", groups = { UpdateValidation.class , InsertValidation.class })
-    private Long productId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date orderDate;
 
-    @NotNull(message = "Sub Total required", groups = {  UpdateValidation.class })
-    private BigDecimal totAmount;
+    @NotNull(message = "Total required", groups = {UpdateValidation.class})
+    private BigDecimal total;
 
-    private BigDecimal unitPrice;
+    private BigDecimal deliveryPrice;
 
-    private Integer qty;
-
-    private BigDecimal subTotal;
-
-    private Integer personCount;
+    private List<ProductRequestDTO> product;
 
     private LocalTime scheduledTime;
 
-    private String potion;
-
-    @NotBlank(message = "Status required", groups = { UpdateValidation.class })
+    @NotBlank(message = "Status required", groups = {UpdateValidation.class})
     private String status;
 
     private String activeUser;

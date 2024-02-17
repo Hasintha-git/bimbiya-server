@@ -3,24 +3,23 @@ package com.bimbiya.server.service.impl;
 import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.SimpleBaseDTO;
 import com.bimbiya.server.dto.request.OrderRequestDTO;
+import com.bimbiya.server.dto.request.ProductRequestDTO;
 import com.bimbiya.server.dto.response.OrderDetailsResponseDTO;
 import com.bimbiya.server.dto.response.OrderResponseDTO;
+import com.bimbiya.server.entity.AddToCart;
 import com.bimbiya.server.entity.Order;
 import com.bimbiya.server.entity.OrderDetail;
-import com.bimbiya.server.entity.Product;
 import com.bimbiya.server.entity.SystemUser;
 import com.bimbiya.server.mapper.DtoToEntityMapper;
 import com.bimbiya.server.mapper.EntityToDtoMapper;
 import com.bimbiya.server.mapper.ResponseGenerator;
-import com.bimbiya.server.repository.OrderDetailRepository;
-import com.bimbiya.server.repository.OrderRepository;
-import com.bimbiya.server.repository.ProductRepository;
-import com.bimbiya.server.repository.UserRepository;
+import com.bimbiya.server.repository.*;
 import com.bimbiya.server.repository.specifications.OrderSpecification;
 import com.bimbiya.server.service.OrderService;
 import com.bimbiya.server.util.MessageConstant;
 import com.bimbiya.server.util.ResponseCode;
 import com.bimbiya.server.util.enums.ClientOrderStatus;
+import com.bimbiya.server.util.enums.ClientTimeSlot;
 import com.bimbiya.server.util.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -52,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderDetailRepository orderDetailRepository;
     private UserRepository userRepository;
     private ProductRepository productRepository;
+    private AddToCartRepository addToCartRepository;
     private OrderSpecification orderSpecification;
     private ResponseGenerator responseGenerator;
 
@@ -62,9 +62,11 @@ public class OrderServiceImpl implements OrderService {
 
             //get status
             List<SimpleBaseDTO> defaultStatus = Stream.of(ClientOrderStatus.values()).map(statusEnum -> new SimpleBaseDTO(statusEnum.getCode(), statusEnum.getDescription())).collect(Collectors.toList());
+            List<SimpleBaseDTO> timeSlot = Stream.of(ClientTimeSlot.values()).map(slotEnum -> new SimpleBaseDTO(slotEnum.getTimeValue(), slotEnum.getStringValue())).collect(Collectors.toList());
 
             //set data
             refData.put("statusList", defaultStatus);
+            refData.put("timeSlot", timeSlot);
 
             return refData;
 
@@ -203,39 +205,48 @@ public class OrderServiceImpl implements OrderService {
             if (Objects.isNull(systemUser)) {
                 return responseGenerator.generateErrorResponse(orderRequestDTO, HttpStatus.NOT_FOUND,
                         ResponseCode.GET_SUCCESS, MessageConstant.USER_NOT_FOUND, new
-                                Object[]{orderRequestDTO.getUserId()},locale);
+                                Object[]{orderRequestDTO.getUserId()}, locale);
             }
 
-            Product product = Optional.ofNullable(productRepository.findByPackageIdAndStatus(orderRequestDTO.getProductId(), Status.active)).orElse(
-                    null
-            );
+            List<AddToCart> cartList = new ArrayList<>();
+            for (ProductRequestDTO productRequestDTO : orderRequestDTO.getProduct()) {
+                AddToCart addToCart = Optional.ofNullable(addToCartRepository.findAddToCartByBpackage_PackageId(productRequestDTO.getPackageId())).orElse(
+                        null
+                );
 
-            if (Objects.isNull(product)) {
-                return responseGenerator.generateErrorResponse(orderRequestDTO, HttpStatus.NOT_FOUND,
-                        ResponseCode.NOT_FOUND, MessageConstant.BYTEPACKAGE_NOT_FOUND, new
-                                Object[]{orderRequestDTO.getProductId()},locale);
+                if (Objects.isNull(addToCart)) {
+                    return responseGenerator.generateErrorResponse(orderRequestDTO, HttpStatus.NOT_FOUND,
+                            ResponseCode.NOT_FOUND, MessageConstant.BYTEPACKAGE_NOT_FOUND, new
+                                    Object[]{productRequestDTO.getPackageId()}, locale);
+                }
+                cartList.add(addToCart);
             }
 
 
             // save order
             Order order = new Order();
             order.setSystemUser(systemUser);
+            order.setTotalAmount(orderRequestDTO.getTotal());
+            order.setDeliveryCharge(orderRequestDTO.getDeliveryPrice());
             order.setStatus(Status.pending);
-            order.setPersonCount(orderRequestDTO.getPersonCount());
             order.setScheduledTime(orderRequestDTO.getScheduledTime());
 
-            DtoToEntityMapper.mapOrder(order,orderRequestDTO);
+            DtoToEntityMapper.mapOrder(order, orderRequestDTO);
 
             orderRepository.save(order);
 
-            // save order details
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setProduct(product);
-            orderDetail.setOrder(order);
+            for (AddToCart addToCart : cartList) {
+                // save order details
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setProduct(addToCart.getBpackage());
+                orderDetail.setUnitPrice(addToCart.getPrice());
+                orderDetail.setPersonCount(addToCart.getPersonCount());
+                orderDetail.setOrder(order);
 
-            DtoToEntityMapper.mapOrderDetails(orderDetail,orderRequestDTO);
+                orderDetailRepository.save(orderDetail);
+            }
 
-            orderDetailRepository.save(orderDetail);
+            addToCartRepository.deleteAll(cartList);
 
             return responseGenerator
                     .generateSuccessResponse(orderRequestDTO, HttpStatus.OK, ResponseCode.SAVED_SUCCESS,

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -29,10 +30,12 @@ public class AddToCartRequestDTO {
     @NotBlank(message = "User name required", groups = {  InsertValidation.class, FindValidation.class})
     private String userName;
 
+    private BigDecimal productPrice;
     private Integer personCount;
 
     private LocalTime scheduledTime;
 
+    private boolean checkout;
     private String status;
     private String activeUser;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")

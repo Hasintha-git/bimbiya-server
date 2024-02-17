@@ -44,14 +44,17 @@ public class UserRequestDTO {
 //    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date dateOfBirth;
 
-    @NotBlank(message = "Address required", groups = {  InsertValidation.class, UpdateValidation.class })
+    @NotBlank(message = "Address required", groups = {InsertValidation.class, UpdateValidation.class})
     private String address;
 
-    @NotBlank(message = "City required", groups = {  InsertValidation.class, UpdateValidation.class })
+    @NotBlank(message = "City required", groups = {InsertValidation.class, UpdateValidation.class})
     private String city;
 
-    @NotBlank(message = "Status required", groups = {  InsertValidation.class, UpdateValidation.class })
+    @NotBlank(message = "Status required", groups = {InsertValidation.class, UpdateValidation.class})
     private String status;
+
+    @NotBlank(message = "District required", groups = {InsertValidation.class, UpdateValidation.class})
+    private String district;
 
     private String pwStatus;
 

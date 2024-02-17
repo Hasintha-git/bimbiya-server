@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,51 +43,64 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public ResponseEntity<Object> sendEmail(EmailSendDTO emailSendDTO, Locale locale) throws Exception {
 
+        SystemUser systemUser = Optional.ofNullable(userRepository.findByIdAndStatusNot(emailSendDTO.getUserId(), Status.deleted))
+                .orElse(null);
+        if (Objects.isNull(systemUser)) {
+            return responseGenerator
+                    .generateErrorResponse(emailSendDTO, HttpStatus.CONFLICT,
+                            ResponseCode.NOT_FOUND, MessageConstant.USER_NOT_FOUND, new Object[]{emailSendDTO.getToEmail()},
+                            locale);
+        }
+
+        emailSendDTO.setSubject("Recovery Password with Bimbiya");
+
         Random random = new Random();
 
         // Generate a random 6-digit number
         int min = 100000; // Minimum 6-digit number
         int max = 999999; // Maximum 6-digit number
         int randomNumber = random.nextInt(max - min + 1) + min;
-        log.debug(">>>>>>>>>> OTP is: "+randomNumber);
 
-        SystemUser systemUser = Optional.ofNullable(userRepository.findByIdAndStatusNot(emailSendDTO.getUserId(), Status.deleted))
-                .orElse(null);
-        if (Objects.isNull(systemUser)) {
-            return responseGenerator
-                    .generateErrorResponse(emailSendDTO, HttpStatus.CONFLICT,
-                            ResponseCode.NOT_FOUND ,  MessageConstant.USER_NOT_FOUND, new Object[] {emailSendDTO.getToEmail()},
-                            locale);
-        }
-
-        log.debug("USER DETAILS >>>>>>>> "+systemUser);
-        SimpleMailMessage message=new SimpleMailMessage();
-        message.setFrom("bimbiyasl@gmail.com");
-        message.setTo(systemUser.getEmail());
-        message.setSubject("Recovery Password with Bimbiya");
         String body = "Dear User,\n\n"
                 + "Your password recovery OTP is: " + randomNumber + ".\n\n"
                 + "Best regards,\n"
                 + "Bimbiya Team";
-        message.setText(body);
-        mailSender.send(message);
-        System.out.println("Email sent successfully!");
 
+        emailSendDTO.setBody(body);
+        emailSendDTO.setToEmail(systemUser.getEmail());
+
+        ResponseEntity<Object> objectResponseEntity = emailSent(emailSendDTO, locale);
 
         Date systemDate = new Date();
         systemUser.setLastUpdatedTime(systemDate);
         systemUser.setOtp(randomNumber);
         userRepository.save(systemUser);
 
+        return objectResponseEntity;
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> emailSent(EmailSendDTO emailSendDTO, Locale locale) {
+
+        log.debug("Pre processing email sent: " + emailSendDTO);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("bimbiyasl@gmail.com");
+        message.setTo(emailSendDTO.getToEmail());
+        message.setSubject(emailSendDTO.getSubject());
+        message.setText(emailSendDTO.getBody());
+        mailSender.send(message);
+
+        log.debug("Email sent successfully!");
+
         return responseGenerator
                 .generateSuccessResponse(emailSendDTO, HttpStatus.OK, ResponseCode.SAVED_SUCCESS,
                         MessageConstant.EMAIL_SEND, locale, null);
-
     }
 
     @Override
     public String encript(EmailSendDTO emailSendDTO, Locale locale) throws Exception {
-            return encrypt(emailSendDTO.getStrToEncrypt(), "dgtL@301");
+        return encrypt(emailSendDTO.getStrToEncrypt(), "dgtL@301");
     }
 
     private static SecretKeySpec secretKey;

@@ -3,6 +3,7 @@ package com.bimbiya.server.service.impl;
 import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.request.AddToCartRequestDTO;
 import com.bimbiya.server.dto.response.AddToCartResponseDTO;
+import com.bimbiya.server.dto.response.CheckoutResponseDTO;
 import com.bimbiya.server.entity.AddToCart;
 import com.bimbiya.server.entity.Product;
 import com.bimbiya.server.entity.SystemUser;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -74,11 +76,12 @@ public class AddToCartServiceImpl implements AddToCartService {
             }
 
             addToCart= new AddToCart();
-            DtoToEntityMapper.mapAddToCart(addToCart,addToCartRequestDTO);
+            DtoToEntityMapper.mapAddToCart(addToCart, addToCartRequestDTO);
+            addToCart.setPrice(addToCartRequestDTO.getProductPrice());
             addToCart.setBpackage(product);
             addToCart.setSystemUser(systemUser);
             addToCart.setPersonCount(addToCartRequestDTO.getPersonCount());
-            addToCart.setScheduledTime(addToCartRequestDTO.getScheduledTime());
+//            addToCart.setScheduledTime(addToCartRequestDTO.getScheduledTime());
 
             addToCartRepository.save(addToCart);
             return responseGenerator.generateSuccessResponse(addToCartRequestDTO, HttpStatus.OK,
@@ -124,28 +127,74 @@ public class AddToCartServiceImpl implements AddToCartService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> removeToCart(AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
-        try{
-            AddToCart addToCart = Optional.ofNullable(addToCartRepository.findById(addToCartRequestDTO.getCartId())).get()
+    public ResponseEntity<Object> removeToCart(Long id, Locale locale) throws Exception {
+        try {
+            AddToCart addToCart = Optional.ofNullable(addToCartRepository.findById(id)).get()
                     .orElse(null);
 
             if (Objects.isNull(addToCart)) {
                 return responseGenerator
-                        .generateErrorResponse(addToCartRequestDTO, HttpStatus.CONFLICT,
-                                ResponseCode.NOT_FOUND ,  MessageConstant.ADD_TO_CART_NOT_FOUND, new Object[] {addToCartRequestDTO.getCartId()},
+                        .generateErrorResponse(id, HttpStatus.CONFLICT,
+                                ResponseCode.NOT_FOUND, MessageConstant.ADD_TO_CART_NOT_FOUND, new Object[]{id},
                                 locale);
             }
 
             addToCartRepository.delete(addToCart);
-            return responseGenerator.generateSuccessResponse(addToCartRequestDTO, HttpStatus.OK,
-                    ResponseCode.DELETE_SUCCESS, MessageConstant.ADD_TO_CART_REMOVED, locale, new Object[] {addToCartRequestDTO.getCartId()});
-        }
-        catch (EntityNotFoundException ex) {
+            return responseGenerator.generateSuccessResponse(id, HttpStatus.OK,
+                    ResponseCode.DELETE_SUCCESS, MessageConstant.ADD_TO_CART_REMOVED, locale, new Object[]{id});
+        } catch (EntityNotFoundException ex) {
             log.info(ex.getMessage());
             throw ex;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             throw ex;
+        }
+    }
+
+    @Override
+    public Object getCheckoutToCart(AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
+        try {
+
+            SystemUser systemUser = Optional.ofNullable(userRepository.findByUsernameAndStatus(addToCartRequestDTO.getUserName(), Status.active))
+                    .orElseThrow(() -> new EntityNotFoundException(messageSource.getMessage(MessageConstant
+                            .USER_NOT_FOUND, null, locale)));
+
+
+            List<AddToCart> addToCart = Optional.ofNullable(addToCartRepository.findAllBySystemUserAndStatusNot(systemUser, Status.deleted))
+                    .orElse(null);
+
+            List<AddToCartResponseDTO> collect = addToCart.stream()
+                    .map(cart -> EntityToDtoMapper.maCartCheckout(cart, addToCartRequestDTO.isCheckout()))
+                    .collect(Collectors.toList());
+
+            CheckoutResponseDTO checkoutResponseDTO = new CheckoutResponseDTO();
+            checkoutResponseDTO.setUserName(systemUser.getUsername());
+            checkoutResponseDTO.setFullName(systemUser.getFullName());
+            checkoutResponseDTO.setAddress(systemUser.getAddress());
+            checkoutResponseDTO.setCity(systemUser.getCity());
+            checkoutResponseDTO.setUserId(systemUser.getId());
+            checkoutResponseDTO.setEmail(systemUser.getEmail());
+
+            BigDecimal subTot = BigDecimal.ZERO;
+            for (AddToCartResponseDTO addToCartResponseDTO : collect) {
+                subTot = subTot.add(addToCartResponseDTO.getPrice());
+            }
+            checkoutResponseDTO.setSubTotal(subTot);
+            checkoutResponseDTO.setDeliveryPrice(BigDecimal.valueOf(699));
+            checkoutResponseDTO.setTotal(subTot.add(checkoutResponseDTO.getDeliveryPrice()));
+
+            checkoutResponseDTO.setCartList(collect);
+//            return new DataTableDTO<>(0L, (long) collect.size(), checkoutResponseDTO, null);
+
+            return responseGenerator.generateSuccessResponse(addToCartRequestDTO.getUserName(), HttpStatus.OK,
+                    ResponseCode.GET_SUCCESS, MessageConstant.GET_TO_CART_SUCCESS, locale, checkoutResponseDTO);
+        } catch (EntityNotFoundException ex) {
+            log.info(ex.getMessage());
+            throw ex;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 }

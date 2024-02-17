@@ -9,5 +9,6 @@ public interface NotificationService {
     ResponseEntity<Object> sendEmail(EmailSendDTO emailSendDTO, Locale locale) throws Exception;
     String encript(EmailSendDTO emailSendDTO, Locale locale) throws Exception;
 
+    ResponseEntity<Object> emailSent(EmailSendDTO emailSendDTO, Locale locale) throws Exception;
 
 }

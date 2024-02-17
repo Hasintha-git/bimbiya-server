@@ -24,7 +24,7 @@ public class TokenServiceImpl {
 
     public String generateJwtToken(Authentication authentication) {
         String subject = authentication.getName();
-        Date expirationDate = new Date(System.currentTimeMillis() + 3600000); // 1 hour in milliseconds
+        Date expirationDate = new Date(System.currentTimeMillis() + 259200000); // 1 hour in milliseconds
 
         String jwt = Jwts.builder()
                 .setSubject(subject)

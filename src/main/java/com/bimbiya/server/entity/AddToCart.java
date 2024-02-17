@@ -5,7 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalTime;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -21,6 +21,9 @@ public class AddToCart implements Serializable {
     @JoinColumn(name = "byte_id", referencedColumnName = "package_id")
     private Product bpackage;
 
+    @Column(name = "price", precision = 10, scale = 2)
+    private BigDecimal price;
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private SystemUser systemUser;
@@ -34,7 +37,4 @@ public class AddToCart implements Serializable {
 
     @Column(name = "person_count")
     private Integer personCount;
-
-    @Column(name = "scheduled_time")
-    private LocalTime scheduledTime;
 }

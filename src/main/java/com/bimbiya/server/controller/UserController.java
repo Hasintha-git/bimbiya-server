@@ -1,8 +1,8 @@
 package com.bimbiya.server.controller;
 
+import com.bimbiya.server.dto.filter.UserRequestSearchDTO;
 import com.bimbiya.server.dto.request.EmailSendDTO;
 import com.bimbiya.server.dto.request.UserRequestDTO;
-import com.bimbiya.server.dto.filter.UserRequestSearchDTO;
 import com.bimbiya.server.service.NotificationService;
 import com.bimbiya.server.service.UserService;
 import com.bimbiya.server.util.EndPoint;
@@ -90,7 +90,7 @@ public class UserController {
     public ResponseEntity<Object> addUser( @Validated({InsertValidation.class})
             @RequestBody UserRequestDTO userRequestDTO, Locale locale) throws Exception {
         log.info("Received User add List Request {} -", userRequestDTO);
-        return userService.saveUser(userRequestDTO, locale);
+        return userService.saveUser(userRequestDTO, locale, false);
     }
 
     @PutMapping(value = {EndPoint.USER_REQUEST_MGT}, produces = MediaType.APPLICATION_JSON_VALUE)

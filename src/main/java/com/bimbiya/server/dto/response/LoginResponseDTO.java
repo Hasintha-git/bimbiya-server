@@ -1,12 +1,14 @@
 package com.bimbiya.server.dto.response;
 
-import com.bimbiya.server.entity.SystemUser;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
 public class LoginResponseDTO {
 
-    private SystemUser user;
+    private Long userId;
+    private String userName;
     private String accessToken;
 
     private String refreshToken;
@@ -19,26 +21,16 @@ public class LoginResponseDTO {
         super();
     }
 
-    public LoginResponseDTO(SystemUser user, String accessToken, String refreshToken, Date accessTokenExpireDate, Date refreshTokenExpireDate) {
-        this.user = user;
+    public LoginResponseDTO(String accessToken, String refreshToken, Date accessTokenExpireDate, Date refreshTokenExpireDate) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.accessTokenExpireDate = accessTokenExpireDate;
         this.refreshTokenExpireDate = refreshTokenExpireDate;
     }
 
-    public LoginResponseDTO(SystemUser user, String accessToken, String refreshToken) {
-        this.user = user;
+    public LoginResponseDTO(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-    }
-
-    public SystemUser getUser() {
-        return user;
-    }
-
-    public void setUser(SystemUser user) {
-        this.user = user;
     }
 
 }

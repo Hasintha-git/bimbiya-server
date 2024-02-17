@@ -28,15 +28,9 @@ public class OrderDetail {
     @JoinColumn(name = "package_id")
     private Product product;
 
-    @Column(name = "quantity")
-    private int quantity;
-
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
-    private BigDecimal subTotal;
-
-    @Column(name = "potion", nullable = false, length = 16)
-    private String potion;
+    @Column(name = "person_count")
+    private Integer personCount;
 }

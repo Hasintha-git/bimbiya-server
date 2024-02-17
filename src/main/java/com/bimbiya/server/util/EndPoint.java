@@ -29,6 +29,7 @@ public class EndPoint {
     //    --------------------- ORDER ---------------------
     public static final String ADD_TO_CART = "/v1/client-cart/add-to-cart";
     public static final String GET_TO_CART = "/v1/client-cart/get-to-cart";
+    public static final String GET_CHECKOUT_TO_CART = "/v1/client-cart/get-to-checkout";
     public static final String REMOVE_TO_CART = "/v1/client-cart/remove-to-cart";
     public static final String ORDER_REQUEST_SEARCH_DATA = "/v1/admin-order/search-reference-data";
     public static final String ORDER_REQUEST_FILTER_LIST = "/v1/admin-order/filter-list";

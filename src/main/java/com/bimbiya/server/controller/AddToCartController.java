@@ -3,7 +3,6 @@ package com.bimbiya.server.controller;
 import com.bimbiya.server.dto.request.AddToCartRequestDTO;
 import com.bimbiya.server.service.AddToCartService;
 import com.bimbiya.server.util.EndPoint;
-import com.bimbiya.server.validators.DeleteValidation;
 import com.bimbiya.server.validators.FindValidation;
 import com.bimbiya.server.validators.InsertValidation;
 import lombok.AllArgsConstructor;
@@ -34,25 +33,32 @@ public class AddToCartController {
 
     @PostMapping(value = {EndPoint.GET_TO_CART}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
-    public Object findCartList(@Validated({ FindValidation.class})
-            @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
+    public Object findCartList(@Validated({FindValidation.class})
+                               @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
         log.info("Received Get To Cart find List Request {} -", addToCartRequestDTO);
         return addToCartService.getToCart(addToCartRequestDTO, locale);
     }
 
+    @PostMapping(value = {EndPoint.GET_CHECKOUT_TO_CART}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "*")
+    public Object checkoutCartList(@Validated({FindValidation.class})
+                                   @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
+        log.info("Received Get To Cart find List Request {} -", addToCartRequestDTO);
+        return addToCartService.getCheckoutToCart(addToCartRequestDTO, locale);
+    }
+
     @PostMapping(value = {EndPoint.ADD_TO_CART}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
-    public ResponseEntity<Object> addToCart( @Validated({InsertValidation.class})
-            @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
+    public ResponseEntity<Object> addToCart(@Validated({InsertValidation.class})
+                                            @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
         log.info("Received Add to cart add List Request {} -", addToCartRequestDTO);
         return addToCartService.addToCart(addToCartRequestDTO, locale);
     }
 
-    @DeleteMapping(value = {EndPoint.REMOVE_TO_CART}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = {EndPoint.REMOVE_TO_CART + "/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "*")
-        public ResponseEntity<Object> removeToCart(@Validated({ DeleteValidation.class})
-                                                       @RequestBody AddToCartRequestDTO addToCartRequestDTO, Locale locale) throws Exception {
-        log.info("Received Remove to cart Request {} -", addToCartRequestDTO);
-        return addToCartService.removeToCart(addToCartRequestDTO, locale);
+    public ResponseEntity<Object> removeToCart(@PathVariable Long id, Locale locale) throws Exception {
+        log.info("Received Remove to cart Request {} -", id);
+        return addToCartService.removeToCart(id, locale);
     }
 }

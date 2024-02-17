@@ -1,13 +1,10 @@
 package com.bimbiya.server.util.enums;
 
 
-public enum ClientPotionEnum
-{
-    SMALL("small", "Small"),
-    MEDIUM("medium", "Medium"),
-    LARGE("large", "Large"),
-    XLARGE("xlarge", "X-Large"),
-    CUSTOM("custom", "Custom");
+public enum ClientPotionEnum {
+    SMALL("small", "1 ingredient"),
+    MEDIUM("medium", "5 ingredient"),
+    LARGE("large", "7 ingredient");
 
 
     private String code;
@@ -34,10 +31,8 @@ public enum ClientPotionEnum
                 return MEDIUM;
             case "large":
                 return LARGE;
-            case "xlarge":
-                return XLARGE;
             default:
-                return CUSTOM;
+                return MEDIUM;
         }
     }
 }

@@ -4,10 +4,10 @@ package com.bimbiya.server.mapper;
 import com.bimbiya.server.dto.SimpleBaseDTO;
 import com.bimbiya.server.dto.response.*;
 import com.bimbiya.server.entity.*;
+import com.bimbiya.server.util.enums.ClientDistrictEnum;
 import com.bimbiya.server.util.enums.ClientPotionEnum;
 import com.bimbiya.server.util.enums.ClientStatusEnum;
 
-import java.util.Base64;
 import java.util.Objects;
 
 public class EntityToDtoMapper {
@@ -20,6 +20,10 @@ public class EntityToDtoMapper {
         userResponseDTO.setUsername(systemUser.getUsername());
         userResponseDTO.setEmail(systemUser.getEmail());
         userResponseDTO.setStatus(String.valueOf(systemUser.getStatus()));
+        if (Objects.nonNull(systemUser.getDistrict())) {
+            userResponseDTO.setDistrict(String.valueOf(systemUser.getDistrict()));
+            userResponseDTO.setDistrictDescription(ClientDistrictEnum.getEnum(String.valueOf(systemUser.getDistrict())).getDescription());
+        }
         userResponseDTO.setPwStatus(String.valueOf(systemUser.getPwStatus()));
         userResponseDTO.setCity(systemUser.getCity());
         userResponseDTO.setNic(systemUser.getNic());
@@ -127,16 +131,10 @@ public class EntityToDtoMapper {
         }
 
         if (isWeb) {
-            setProductImage(product, productResponseDTO);
+//            setProductImage(product, productResponseDTO);
+            productResponseDTO.setImg(product.getImage());
         }
         return productResponseDTO;
-    }
-
-    public static void setProductImage(Product product, ProductResponseDTO productResponseDTO) {
-        if (Objects.nonNull(product.getImg())) {
-            String encode = "data:image/jpeg;base64," + new String(Base64.getEncoder().encode(product.getImg()));
-            productResponseDTO.setImg(encode);
-        }
     }
 
     public static AddToCartResponseDTO mapAddToCart( AddToCart addToCart) {
@@ -148,6 +146,22 @@ public class EntityToDtoMapper {
         addToCartResponseDTO.setUserName(addToCart.getSystemUser().getUsername());
         addToCartResponseDTO.setMealName(addToCart.getBpackage().getProductName());
         addToCartResponseDTO.setStatus(String.valueOf(addToCart.getStatus()));
+        return addToCartResponseDTO;
+    }
+
+    public static AddToCartResponseDTO maCartCheckout(AddToCart addToCart, boolean checkout) {
+        AddToCartResponseDTO addToCartResponseDTO = new AddToCartResponseDTO();
+        addToCartResponseDTO.setCartId(addToCart.getCartId());
+        addToCartResponseDTO.setQty(addToCart.getQty());
+        addToCartResponseDTO.setPackageId(addToCart.getBpackage().getPackageId());
+        addToCartResponseDTO.setMealName(addToCart.getBpackage().getProductName());
+        addToCartResponseDTO.setPrice(addToCart.getPrice());
+        addToCartResponseDTO.setPersonCount(addToCart.getPersonCount());
+        addToCartResponseDTO.setStatus(String.valueOf(addToCart.getStatus()));
+
+        if (checkout) {
+            addToCartResponseDTO.setImage(addToCart.getBpackage().getImage());
+        }
         return addToCartResponseDTO;
     }
 
@@ -184,13 +198,7 @@ public class EntityToDtoMapper {
         responseDTO.setOrderDetailId(orderDetail.getDetail_id());
         responseDTO.setProductId(orderDetail.getProduct().getPackageId());
         responseDTO.setProductName(orderDetail.getProduct().getProductName());
-        responseDTO.setQuantity(orderDetail.getQuantity());
         responseDTO.setUnitPrice(orderDetail.getUnitPrice());
-        responseDTO.setSubTotal(orderDetail.getSubTotal());
-
-        if (Objects.nonNull(orderDetail.getPotion())) {
-            responseDTO.setPotion(orderDetail.getPotion());
-        }
 
         return responseDTO;
     }

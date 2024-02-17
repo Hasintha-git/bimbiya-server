@@ -45,18 +45,19 @@ public class SecurityConfig {
         DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
         daoProvider.setUserDetailsService(userDetailsService);
         daoProvider.setPasswordEncoder(passwordEncoder());
-        System.out.println("ttttttttttttttttttttt");
         return new ProviderManager(daoProvider);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("kkkkkkkkkkkkk");
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.antMatchers("**").permitAll();
-//                    auth.antMatchers("/auth/**").permitAll();
+//                    auth.antMatchers("**").permitAll();
+                    auth.antMatchers("/auth/**").permitAll();
+                    auth.antMatchers("/product/**").permitAll();
+                    auth.antMatchers("/cart/**").permitAll();
+                    auth.antMatchers("/ingredient/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer:: jwt)

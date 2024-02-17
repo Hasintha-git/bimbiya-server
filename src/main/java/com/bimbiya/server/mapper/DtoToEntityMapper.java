@@ -3,9 +3,9 @@ package com.bimbiya.server.mapper;
 
 import com.bimbiya.server.dto.request.*;
 import com.bimbiya.server.entity.*;
+import com.bimbiya.server.util.enums.District;
 import com.bimbiya.server.util.enums.Status;
 
-import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 
@@ -18,6 +18,10 @@ public class DtoToEntityMapper {
         systemUser.setPwStatus(Status.valueOf(userRequestDTO.getPwStatus()));
         if (Objects.nonNull(userRequestDTO.getPasswordExpireDate())) {
             systemUser.setPasswordExpireDate(userRequestDTO.getPasswordExpireDate());
+        }
+
+        if (Objects.nonNull(userRequestDTO.getDistrict())) {
+            systemUser.setDistrict(District.valueOf(userRequestDTO.getDistrict()));
         }
         systemUser.setLastUpdatedUser(userRequestDTO.getLastUpdatedUser());
         systemUser.setAttempt(0);
@@ -59,10 +63,12 @@ public class DtoToEntityMapper {
         }
 
         if (Objects.nonNull(productRequestDTO.getImg())) {
-            String[] fileName = productRequestDTO.getImg().split(",", 2);
-            byte[] decode = Base64.getDecoder().decode(fileName[1]);
+//            String[] fileName = productRequestDTO.getImg().split(",", 2);
+//            byte[] decode = Base64.getDecoder().decode(fileName[1]);
+//
+//            product.setImg(decode);
 
-            product.setImg(decode);
+            product.setImage(productRequestDTO.getImg());
         }
     }
 
@@ -75,19 +81,9 @@ public class DtoToEntityMapper {
     public static void mapOrder(Order order, OrderRequestDTO orderRequestDTO) {
         Date date = new Date();
         order.setOrderDate(date);
-        order.setTotalAmount(orderRequestDTO.getTotAmount());
         order.setCreatedUser(orderRequestDTO.getActiveUser());
         order.setLastUpdatedUser(orderRequestDTO.getActiveUser());
         order.setCreatedTime(date);
         order.setLastUpdatedTime(date);
-    }
-
-    public static void mapOrderDetails(OrderDetail orderDetail, OrderRequestDTO orderRequestDTO) {
-        orderDetail.setQuantity(orderRequestDTO.getQty());
-        orderDetail.setUnitPrice(orderRequestDTO.getTotAmount());
-        orderDetail.setSubTotal(orderRequestDTO.getSubTotal());
-        if (Objects.nonNull(orderRequestDTO.getPotion())) {
-            orderDetail.setPotion(orderRequestDTO.getPotion());
-        }
     }
 }

@@ -14,6 +14,9 @@ import java.util.List;
 public interface AddToCartRepository extends JpaRepository<AddToCart, Long>, JpaSpecificationExecutor<AddToCart> {
 
     List<AddToCart> findAllBySystemUserAndStatusNot(SystemUser systemUser, Status status);
-//    Long countAllBy();
+
+    AddToCart findAddToCartByBpackage_PackageId(Long id);
+
+    //    Long countAllBy();
     AddToCart findBySystemUserAndBpackage(SystemUser systemUser, Product product);
 }

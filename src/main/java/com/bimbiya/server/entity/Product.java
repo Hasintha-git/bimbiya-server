@@ -20,9 +20,8 @@ public class Product implements Serializable {
     @Column(name = "package_id")
     private Long packageId;
 
-    @Lob
-    @Column(name = "img", nullable = false)
-    private byte[] img;
+    @Column(name = "image", nullable = true)
+    private String image;
 
     @Column(name = "product_name", nullable = false, length = 32)
     private String productName;

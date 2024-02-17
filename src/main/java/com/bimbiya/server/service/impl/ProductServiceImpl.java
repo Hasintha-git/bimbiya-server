@@ -8,10 +8,10 @@ import com.bimbiya.server.entity.*;
 import com.bimbiya.server.mapper.DtoToEntityMapper;
 import com.bimbiya.server.mapper.EntityToDtoMapper;
 import com.bimbiya.server.mapper.ResponseGenerator;
+import com.bimbiya.server.repository.IngredientsRepository;
 import com.bimbiya.server.repository.ProductCategoryRepository;
 import com.bimbiya.server.repository.ProductIngredientsRepository;
 import com.bimbiya.server.repository.ProductRepository;
-import com.bimbiya.server.repository.IngredientsRepository;
 import com.bimbiya.server.repository.specifications.BytePackageSpecification;
 import com.bimbiya.server.service.ProductService;
 import com.bimbiya.server.util.MessageConstant;
@@ -236,7 +236,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Object trendingPackagesList(String username, Locale locale) throws Exception {
         try {
-            int pageSize = 10;
+            int pageSize = 5;
             int pageNumber = 0;
 
             Pageable pageable = PageRequest.of(pageNumber, pageSize);
