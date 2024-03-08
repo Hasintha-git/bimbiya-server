@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
     List<Order> findAllBySystemUserAndStatus(SystemUser systemUser, Status status);
+    List<Order> findAllBySystemUser(SystemUser systemUser);
     List<Order> findAllByOrderDateAndStatus(Date date, Status status);
     Optional<Order> findById(Long id);
     Long countAllByOrderDateAndStatus(Date date, Status status);

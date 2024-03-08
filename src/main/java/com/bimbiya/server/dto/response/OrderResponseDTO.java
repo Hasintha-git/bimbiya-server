@@ -21,6 +21,7 @@ public class OrderResponseDTO {
     private String mobileNo;
     private String address;
     private String city;
+    private String scheduleTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private Date orderDate;

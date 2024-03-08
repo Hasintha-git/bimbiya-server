@@ -13,4 +13,5 @@ import java.util.List;
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long>, JpaSpecificationExecutor<OrderDetail> {
     List<OrderDetail> findAllByProduct(Product product);
     List<OrderDetail> findAllByOrder(Order order);
+    void deleteAllByOrder(Order order);
 }

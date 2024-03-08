@@ -6,15 +6,13 @@ import com.bimbiya.server.dto.request.EmailSendDTO;
 import com.bimbiya.server.dto.request.UserRequestDTO;
 import com.bimbiya.server.dto.response.DashboardResponseDTO;
 import com.bimbiya.server.dto.response.UserResponseDTO;
+import com.bimbiya.server.entity.Order;
 import com.bimbiya.server.entity.SystemUser;
 import com.bimbiya.server.entity.UserRole;
 import com.bimbiya.server.mapper.DtoToEntityMapper;
 import com.bimbiya.server.mapper.EntityToDtoMapper;
 import com.bimbiya.server.mapper.ResponseGenerator;
-import com.bimbiya.server.repository.OrderDetailRepository;
-import com.bimbiya.server.repository.OrderRepository;
-import com.bimbiya.server.repository.UserRepository;
-import com.bimbiya.server.repository.UserRoleRepository;
+import com.bimbiya.server.repository.*;
 import com.bimbiya.server.repository.specifications.UserSpecification;
 import com.bimbiya.server.service.NotificationService;
 import com.bimbiya.server.service.UserService;
@@ -47,6 +45,7 @@ import java.util.stream.Stream;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+    private AddToCartRepository addToCartRepository;
     private OrderRepository orderRepository;
     private OrderDetailRepository orderDetailRepository;
 
@@ -355,7 +354,6 @@ public class UserServiceImpl implements UserService {
             if (client) {
                 Integer randomNumber = sentOtp(systemUser.getEmail(), locale);
                 systemUser.setStatus(Status.blocked);
-                userRepository.save(systemUser);
 
                 systemUser.setLastUpdatedTime(systemDate);
                 systemUser.setOtp(randomNumber);
@@ -561,8 +559,14 @@ public class UserServiceImpl implements UserService {
                                 locale);
             }
 
-            systemUser.setStatus(Status.deleted);
-            userRepository.save(systemUser);
+            addToCartRepository.deleteAllBySystemUser(systemUser);
+            List<Order> allBySystemUser = orderRepository.findAllBySystemUser(systemUser);
+
+            for (Order order : allBySystemUser) {
+               orderDetailRepository.deleteAllByOrder(order);
+            }
+
+            userRepository.delete(systemUser);
             return responseGenerator.generateSuccessResponse(userRequestDTO, HttpStatus.OK,
                     ResponseCode.DELETE_SUCCESS, MessageConstant.USER_SUCCESSFULLY_DELETE, locale, new Object[] {userRequestDTO.getUsername()});
         }

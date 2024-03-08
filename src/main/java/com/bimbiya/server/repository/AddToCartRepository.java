@@ -19,4 +19,6 @@ public interface AddToCartRepository extends JpaRepository<AddToCart, Long>, Jpa
 
     //    Long countAllBy();
     AddToCart findBySystemUserAndBpackage(SystemUser systemUser, Product product);
+
+    void deleteAllBySystemUser(SystemUser systemUser);
 }

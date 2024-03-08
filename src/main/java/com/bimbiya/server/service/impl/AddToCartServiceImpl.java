@@ -69,6 +69,9 @@ public class AddToCartServiceImpl implements AddToCartService {
             if (Objects.nonNull(addToCart)) {
                 int i = addToCart.getQty() + addToCartRequestDTO.getQty();
                 addToCart.setQty(i);
+                int personCount = addToCart.getPersonCount() + addToCartRequestDTO.getPersonCount();
+                addToCart.setPersonCount(personCount);
+                addToCart.setPrice(addToCart.getPrice().add(addToCartRequestDTO.getProductPrice()));
 
                 addToCartRepository.save(addToCart);
                 return responseGenerator.generateSuccessResponse(addToCartRequestDTO, HttpStatus.OK,

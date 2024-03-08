@@ -99,6 +99,24 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
+    public ResponseEntity<Object> orderEmailSent(EmailSendDTO emailSendDTO, Locale locale) throws Exception {
+        log.debug("Pre processing email sent: " + emailSendDTO);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("bimbiyasl@gmail.com");
+        message.setTo(emailSendDTO.getToEmail());
+        message.setSubject(emailSendDTO.getSubject());
+        message.setText(emailSendDTO.getBody());
+        mailSender.send(message);
+
+        log.debug("Email sent successfully!");
+
+        return responseGenerator
+                .generateSuccessResponse(emailSendDTO, HttpStatus.OK, ResponseCode.SAVED_SUCCESS,
+                        MessageConstant.EMAIL_SEND, locale, null);
+    }
+
+    @Override
     public String encript(EmailSendDTO emailSendDTO, Locale locale) throws Exception {
         return encrypt(emailSendDTO.getStrToEncrypt(), "dgtL@301");
     }

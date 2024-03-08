@@ -2,6 +2,7 @@ package com.bimbiya.server.service.impl;
 
 import com.bimbiya.server.dto.DataTableDTO;
 import com.bimbiya.server.dto.SimpleBaseDTO;
+import com.bimbiya.server.dto.request.EmailSendDTO;
 import com.bimbiya.server.dto.request.OrderRequestDTO;
 import com.bimbiya.server.dto.request.ProductRequestDTO;
 import com.bimbiya.server.dto.response.OrderDetailsResponseDTO;
@@ -15,6 +16,7 @@ import com.bimbiya.server.mapper.EntityToDtoMapper;
 import com.bimbiya.server.mapper.ResponseGenerator;
 import com.bimbiya.server.repository.*;
 import com.bimbiya.server.repository.specifications.OrderSpecification;
+import com.bimbiya.server.service.NotificationService;
 import com.bimbiya.server.service.OrderService;
 import com.bimbiya.server.util.MessageConstant;
 import com.bimbiya.server.util.ResponseCode;
@@ -49,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderRepository orderRepository;
     private OrderDetailRepository orderDetailRepository;
+    private NotificationService notificationService;
     private UserRepository userRepository;
     private ProductRepository productRepository;
     private AddToCartRepository addToCartRepository;
@@ -148,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
             orderResponseDTO.setMobileNo(order.getSystemUser().getMobileNo());
             orderResponseDTO.setAddress(order.getSystemUser().getAddress());
             orderResponseDTO.setCity(order.getSystemUser().getCity());
+            orderResponseDTO.setScheduleTime(ClientTimeSlot.getEnum(String.valueOf(order.getScheduledTime())).getStringValue());
 
             log.info("ORDER RESPONSE >>>>>>>>>"+orderResponseDTO);
 
@@ -233,8 +237,8 @@ public class OrderServiceImpl implements OrderService {
 
             DtoToEntityMapper.mapOrder(order, orderRequestDTO);
 
-            orderRepository.save(order);
-
+            Order savedOrder = orderRepository.save(order);
+            List<OrderDetail> savedOrderDetail = new ArrayList<>();
             for (AddToCart addToCart : cartList) {
                 // save order details
                 OrderDetail orderDetail = new OrderDetail();
@@ -243,7 +247,18 @@ public class OrderServiceImpl implements OrderService {
                 orderDetail.setPersonCount(addToCart.getPersonCount());
                 orderDetail.setOrder(order);
 
-                orderDetailRepository.save(orderDetail);
+                savedOrderDetail.add(orderDetailRepository.save(orderDetail));
+            }
+
+            if (Objects.nonNull(savedOrderDetail)) {
+                EmailSendDTO emailSendDTO = new EmailSendDTO();
+                emailSendDTO.setToEmail("bimbiyasl@gmail.com");
+                emailSendDTO.setSubject("New Order Received With Order Id:"+order.getId());
+                emailSendDTO.setBody(orderBodySet(savedOrder, savedOrderDetail));
+                notificationService.orderEmailSent(emailSendDTO,locale);
+                emailSendDTO.setToEmail(order.getSystemUser().getEmail());
+                emailSendDTO.setSubject("Bimbiya Order Details With Order Id:"+order.getId());
+                notificationService.orderEmailSent(emailSendDTO,locale);
             }
 
             addToCartRepository.deleteAll(cartList);
@@ -260,4 +275,37 @@ public class OrderServiceImpl implements OrderService {
             throw ex;
         }
     }
+
+    public String orderBodySet(Order order, List<OrderDetail> orderDetails) {
+        StringBuilder body = new StringBuilder();
+        body.append("--------------------------------------------------\n")
+                .append("                    INVOICE\n")
+                .append("--------------------------------------------------\n\n")
+                .append("Order ID: ").append(order.getId()).append("\n")
+                .append("Order Date: ").append(order.getOrderDate()).append("\n")
+                .append("Total Amount: ").append(order.getTotalAmount()).append("\n")
+                .append("Delivery Charge: ").append(order.getDeliveryCharge()).append("\n")
+                .append("Status: ").append(order.getStatus()).append("\n\n")
+                .append("--------------------------------------------------\n")
+                .append("                    DETAILS\n")
+                .append("--------------------------------------------------\n")
+                .append("Product                 |   Unit Price   |  Person Count\n");
+
+        // Append order details
+        for (OrderDetail detail : orderDetails) {
+            body.append(String.format("%-20s| %-14s| %-12s\n",
+                    detail.getProduct().getProductName(),
+                    detail.getUnitPrice(),
+                    detail.getPersonCount()));
+        }
+
+        body.append("\n--------------------------------------------------\n")
+                .append("Thank you for your order!\n")
+                .append("Best regards,\n")
+                .append("Bimbiya Team\n")
+                .append("--------------------------------------------------");
+
+        return body.toString();
+    }
+
 }

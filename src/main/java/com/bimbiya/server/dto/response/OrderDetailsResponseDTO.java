@@ -13,6 +13,7 @@ public class OrderDetailsResponseDTO {
     private String productName;
     private int quantity;
     private BigDecimal unitPrice;
+    private int personCount;
     private BigDecimal subTotal;
     private String potion;
 }

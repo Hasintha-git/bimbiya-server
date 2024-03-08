@@ -199,6 +199,7 @@ public class EntityToDtoMapper {
         responseDTO.setProductId(orderDetail.getProduct().getPackageId());
         responseDTO.setProductName(orderDetail.getProduct().getProductName());
         responseDTO.setUnitPrice(orderDetail.getUnitPrice());
+        responseDTO.setPersonCount(orderDetail.getPersonCount());
 
         return responseDTO;
     }
